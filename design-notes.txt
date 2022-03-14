@@ -1,0 +1,122 @@
+Notes on WY Wind Model
+======================
+
+The current plan is for WY to implement the following 6 (or 7) functions, and I will likely repackage at least some of them as methods of a single wy_wind_model class:
+(1) wy_wind_trans_probs()
+(2) wy_wind_realizations()
+(3) wy_wind_forecasts()
+(4) wy_wind_speed2power()
+(5) wy_wind_build_model()
+(6) wy_wind_date2pidx()
+(7) wy_wind_pidx2date() (optional)
+
+We went over the first four in detail. We mentioned (5) in passing, for building the AR[1] models from the historical data. And the code for (6), which converts a date to a period index for the raw historical data, was implicitly included in (2), but upon further reflection I think it would simplify things further to split it out into its own function. This way as a user (e.g. me) is stepping through a horizon, he can simply increment a period index, rather than having to keep track of when he is crossing day, month, year boundaries. And (7) seems useful, but possibly not necessary.
+
+I've done my best to define the details of (5) and (6) below, but we can iterate on that if you have other ideas.
+
+Finally, I believe we forgot to come back to an issue about needing some raw wind data in addition to the AR[1] model parameters for one of the functions ... I think it was wy_wind_trans_probs(). Can one of you clarify that? Does wy_wind_trans_probs() need access to the raw historical data too?
+
+
+Design of WY Wind functions
+---------------------------
+
+Note: A design goal is to keep the code and data strictly separate, that is, to make sure that none of the code is specific to the particular set of wind data that we are currently working with.
+
+Common Notation / Data stuctures:
+    np_all = total number of periods in raw wind data
+    nw_all = total number of wind sites in raw data (16 for current data set)
+    np = number of periods of interest (e.g. for planning horizon)
+    nw = number of wind sites of interest
+    npd = number of periods per day (typically 24, for hourly data)
+    nb = number of bins used for wind model inputs for MOST
+    ws_max = max wind speed in m/s (for conversion table)
+    widx = (nw x 1) vector of indices of wind sites of interest
+    pidx = scalar period index for raw historical wind data
+    dt = 1 x 4 vector (yr, mo, day, p), specifying a specific period in the
+        raw historical wind data
+        yr = 4-digit year
+        mo = month-of-year (1-12)
+        day = day-of-month (1-31)
+        p = period of day (0-(npd-1)) (e.g. 0-23 for hourly, i.e. npd=24)
+    wind_data = (nw_all x np_all) matrix of wind speeds (in m/s), corresponding
+        to nw_all specific sites, np_all periods, a particular npd, and a
+        starting dt (dt0)
+    bins = bin specification, supplied as either:
+        (1) number of bins (nb), or
+        (2) (1 x nb-1) vector of bin boundaries (standard deviation
+            coefficients), where initial -Inf and final +Inf are assumed,
+            but not included
+    model = struct with fields:
+        ar1 = (nw_all x 1) vector of AR[1] coefficients for individual sites
+        ar1_total = scalar AR[1] coefficient for total wind
+
+Functions
+    (1) tp = wy_wind_trans_probs(model, ws0, np, bins)
+        ws0 = scalar, initial wind speed (average over all sites?)
+        tp = (1 x np) cell array of transition probabilities, where
+            1st element is (1 x nb), rest are (nb x nb)
+
+    (2) wsr = wy_wind_realizations(model, widx, pidx0, np)
+        wsr = wy_wind_realizations(wind_data, widx, pidx0, np)
+        pidx0 = scalar period index of first period of horizon of interest
+        wsr = (nw x np) matrix of wind speed realizations
+
+        The 1st option generates the realizations from the model, the 2nd
+        extracts them from the data.
+
+    (3) wsf = wy_wind_forecasts(model, widx, pidx0, np, bins)
+        pidx0 = scalar period index of first period of horizon of interest
+        wsf = (nw x np x nb) 3D matrix of bin means of wind speed forecast
+
+    (4) wp = wy_wind_speed2power(ws, s2p)
+        ws = (nw x np x nb) 3D matrix of wind speeds
+        s2p = (1 x (ws_max+1)) vector (to be used for all sites of interest) or
+            (nw x (ws_max+1)) matrix of fractions (for nw individual sites),
+            used as lookup table for converting wind speed to wind power, as
+            fraction of installed capacity, where 1st and last cols correspond
+            to wind speeds of 0 m/s and ws_max m/s, respectively
+        wp = (nw x np x nb) 3D matrix of available wind power outputs as
+            fraction of installed capacity
+
+    (5) model = wy_wind_build_model(wind_data)
+
+    (6) pidx = wy_wind_date2pidx(npd, dt0, dt)
+        dt0 = 1 x 4 vector of same format as dt, specifying initial period
+            of raw historical data
+
+    I think it would be useful, but possibly not critical, to also have the
+    converse function available:
+    
+    (7) dt = wy_wind_pidx2date(npd, dt0, pidx)
+
+
+Object-oriented version
+-----------------------
+I expect to repackage the above functions into a single class, something like
+the following:
+
+wy_wind_model
+    properties
+        ar1_total - scalar
+        ar1(nw) - 16 x 1 vector
+    methods
+        build_model(wind_data)
+        save_model(file_name)
+        load_model(file_name)
+
+        tp = transition_probs(obj, ws0, np, bins)
+        wsr = realizations(obj, widx, pidx0, np)
+        wsr = realizations(obj, widx, pidx0, np, wind_data)
+        wsf = forecasts(obj, widx, pidx0, np, bins)
+
+The user could then do things like:
+
+    m = wy_wind_model;
+    m.build_model(wind_data);
+    m.save(file_name);
+
+    m = wy_wind_model;
+    m.load_model(file_name);
+    tp = m.transition_probs(ws0, np, bins);
+    wsr = m.realizations(widx, pidx0, np);
+    wsf = m.forecasts(widx, pidx0, np, bins);
