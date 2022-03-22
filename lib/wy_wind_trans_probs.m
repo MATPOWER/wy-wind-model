@@ -1,4 +1,4 @@
-function tp = wy_wind_trans_probs(model, ws0, np, bins)
+function tp = wy_wind_trans_probs(model, wind_data, ws0, np, bins)
 %WY_WIND_TRANS_PROBS  Returns cell array of transition probabilities for MOST
 %
 %   TP = WY_WIND_TRANS_PROBS(MODEL, WS0, NP, BINS)
@@ -7,6 +7,10 @@ function tp = wy_wind_trans_probs(model, ws0, np, bins)
 %       MODEL - struct with fields:
 %           ar1 - (NW_ALL x 1) vector of AR[1] coefficients for individual sites
 %           ar1_total - scalar AR[1] coefficient for total wind
+%       WIND_DATA - (NW_ALL x NP_ALL) matrix of wind speeds (in m/s),
+%           corresponding to NW_ALL specific sites, NP_ALL periods,
+%           a particular NPD (number of periods per day), and a starting DT
+%           specifying (year, month, day, period) (DT0)
 %       WS0   - scalar, initial wind speed
 %       NP    - number of periods of interest (e.g. for planning horizon)
 %       BINS  - bin specification, supplied as either:

@@ -14,8 +14,6 @@ We went over the first four in detail. We mentioned (5) in passing, for building
 
 I've done my best to define the details of (5) and (6) below, but we can iterate on that if you have other ideas.
 
-Finally, I believe we forgot to come back to an issue about needing some raw wind data in addition to the AR[1] model parameters for one of the functions ... I think it was wy_wind_trans_probs(). Can one of you clarify that? Does wy_wind_trans_probs() need access to the raw historical data too?
-
 
 Design of WY Wind functions
 ---------------------------
@@ -51,7 +49,7 @@ Common Notation / Data stuctures:
         ar1_total = scalar AR[1] coefficient for total wind
 
 Functions
-    (1) tp = wy_wind_trans_probs(model, ws0, np, bins)
+    (1) tp = wy_wind_trans_probs(model, wind_data, ws0, np, bins)
         ws0 = scalar, initial wind speed (average over all sites?)
         tp = (1 x np) cell array of transition probabilities, where
             1st element is (1 x nb), rest are (nb x nb)
@@ -104,7 +102,7 @@ wy_wind_model
         save_model(file_name)
         load_model(file_name)
 
-        tp = transition_probs(obj, ws0, np, bins)
+        tp = transition_probs(obj, wind_data, ws0, np, bins)
         wsr = realizations(obj, widx, pidx0, np)
         wsr = realizations(obj, widx, pidx0, np, wind_data)
         wsf = forecasts(obj, widx, pidx0, np, bins)
@@ -117,6 +115,6 @@ The user could then do things like:
 
     m = wy_wind_model;
     m.load_model(file_name);
-    tp = m.transition_probs(ws0, np, bins);
+    tp = m.transition_probs(wind_data, ws0, np, bins);
     wsr = m.realizations(widx, pidx0, np);
     wsf = m.forecasts(widx, pidx0, np, bins);
