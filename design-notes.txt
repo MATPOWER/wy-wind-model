@@ -47,12 +47,10 @@ Common Notation / Data stuctures:
     model = struct with fields:
         ar1 = (nw_all x 1) vector of AR[1] coefficients for individual sites
         ar1_total = scalar AR[1] coefficient for total wind
+        variance/covariance matrix
 
 Functions
-    (1) tp = wy_wind_trans_probs(model, wind_data, ws0, np, bins)
-        ws0 = scalar, initial wind speed (average over all sites?)
-        tp = (1 x np) cell array of transition probabilities, where
-            1st element is (1 x nb), rest are (nb x nb)
+    (1) tp = wy_wind_trans_probs(model, np, bins)
 
     (2) wsr = wy_wind_realizations(model, widx, pidx0, np)
         wsr = wy_wind_realizations(wind_data, widx, pidx0, np)
