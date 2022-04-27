@@ -19,11 +19,25 @@ function dt = wy_wind_pidx2date(npd, dt0, pidx)
 
 %   WY-Wind-Model
 %   Copyright (c) 2022, Wooyoung Jeon, Ray Zimmerman
-%   by Wooyoung Jeon
+%   by Ray Zimmerman
 %
 %   This file is part of WY-Wind-Model.
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://github.com/MATPOWER/wy-wind-model for more info.
 
-%-----  WY your code goes here  -----
-dt = 
+%% construct date vectors for dt0 and dt
+v0 = [dt0(1:3) wy_period2hms(dt0(4), npd)];
+dn = datenum(v0) + (pidx-1) / npd;
+v = datevec(dn);
+
+fd = (60*(60*v(4) + v(5)) + v(6)) / (60*60*24);
+dt = [v(1:3) fd*npd];
+
+
+function hms = wy_period2hms(p, npd)
+%% convert p to [h m s]
+fd = p / npd;   %% fraction of the day
+h = floor(24*fd);
+m = floor(60*(24*fd - h));
+s = round(60*(60*(24*fd - h) - m));
+hms = [h m s];
