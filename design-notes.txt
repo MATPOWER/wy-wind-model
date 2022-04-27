@@ -30,12 +30,14 @@ Common Notation / Data stuctures:
     ws_max = max wind speed in m/s (for conversion table)
     widx = (nw x 1) vector of indices of wind sites of interest
     pidx = scalar period index for raw historical wind data
-    dt = 1 x 4 vector (yr, mo, day, p), specifying a specific period in the
-        raw historical wind data
+    dt = 1 x 6 standard Matlab date vector (yr, mo, day, hr, min, sec),
+        specifying a specific period in the raw historical wind data
         yr = 4-digit year
         mo = month-of-year (1-12)
         day = day-of-month (1-31)
-        p = period of day (0-(npd-1)) (e.g. 0-23 for hourly, i.e. npd=24)
+        hr = hour-of-day (0-23)
+        min = minute (0-59)
+        sec = minute (0-59)
     wind_data = (nw_all x np_all) matrix of wind speeds (in m/s), corresponding
         to nw_all specific sites, np_all periods, a particular npd, and a
         starting dt (dt0)
@@ -80,12 +82,9 @@ Functions
     (5) model = wy_wind_build_model(wind_data)
 
     (6) pidx = wy_wind_date2pidx(npd, dt0, dt)
-        dt0 = 1 x 4 vector of same format as dt, specifying initial period
+        dt0 = 1 x 6 date vector of same format as dt, specifying initial period
             of raw historical data
 
-    I think it would be useful, but possibly not critical, to also have the
-    converse function available:
-    
     (7) dt = wy_wind_pidx2date(npd, dt0, pidx)
 
 
