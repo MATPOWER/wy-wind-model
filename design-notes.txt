@@ -46,8 +46,11 @@ Common Notation / Data stuctures:
             but not included
     model = struct with fields:
         ar1 = (nw_all x 1) vector of AR[1] coefficients for individual sites
+        ols = (nw_all x 9) matrix of ?
+        var_wnr = (nw_all x nw_all) covariance matrix
         ar1_total = scalar AR[1] coefficient for total wind
-        variance/covariance matrix
+        ols_total
+        var_wnr_total
 
 Functions
     (1) tp = wy_wind_trans_probs(model, np, bins)
