@@ -14,9 +14,9 @@ jobs:
       matrix:
         platform: [octave]
         os: [macos-latest, ubuntu-latest]
-        include:
-        - platform: matlab
-          os: ubuntu-latest
+#        include:
+#        - platform: matlab
+#          os: ubuntu-latest
 
     runs-on: ${{ matrix.os }}
 
