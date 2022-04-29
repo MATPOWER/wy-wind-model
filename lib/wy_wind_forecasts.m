@@ -1,37 +1,233 @@
-function wsf = wy_wind_forecasts(model, widx, pidx0, np, bins)
-%WY_WIND_FORECASTS  Returns wind speed forecast bin means
-%
-%   WSF = WY_WIND_FORECASTS(MODEL, WIDX, PIDX0, NP, BINS)
-%
-%   Inputs:
-%       MODEL - struct with fields:
-%           ar1 - (NW_ALL x 1) vector of AR[1] coefficients for individual sites
-%           ar1_total - scalar AR[1] coefficient for total wind
-%       WIDX  - (NW x 1) vector of indices of wind sites of interest
-%       PIDX0 - scalar period index of first period of horizon of interest
-%       NP    - number of periods of interest (e.g. for planning horizon)
-%       BINS  - bin specification, supplied as either:
-%           (1) number of bins (NB), or
-%           (2) (1 x NB-1) vector of bin boundaries (standard deviation
-%               coefficients), where initial -Inf and final +Inf are assumed,
-%               but not included
-%   Output:
-%       WSF - (NW x NP x NB) 3D matrix of bin means of wind speed forecast
+function [wsf] = wy_wind_forecasts(wind_data, model, widx, pidx0, np, bins)
 
-%   WY-Wind-Model
-%   Copyright (c) 2022, Wooyoung Jeon, Ray Zimmerman
-%   by Wooyoung Jeon
+% % wind_data := struct with fields:
+%        wind_speed = (nw_all x np_all) matrix of wind speeds (in m/s), corresponding
+%        to nw_all specific sites, np_all periods, a particular npd, and a
+%        starting dt (dt0)
+%        wind_cap = (nw_all X 1) :matrix of wind capacity (in MW)
+%        'winddata_npcc.mat' => 'winddata': 26303 X 16, 'windcap': 1 X 16
+%        16 sites : ny1~ny9, ne1~ne7
+%        2004, 2005, 2006 : 3 years
+%        starts at 2004.01.01 1am, end at 2006.12.31 23pm
+%        8760 * 3 + 24 -1 = 26303
+%        wind speed data, m/s
+% widx = (nw x 1) vector of indices of wind sites of interest
+% pidx0 = scalar period index of first period of horizon of interest
+% wsr = (nw x np) matrix of wind speed realizations
+% np    :number of periods of interest (e.g. for planning horizon)
+% bins  :bin specification, supplied as either:
+%        (1) number of bins (nb), or
+%        (2) (1 x nb-1) vector of bin boundaries (standard deviation
+%            coefficients), where initial -Inf and final +Inf are assumed,
+%            but not included
 %
-%   This file is part of WY-Wind-Model.
-%   Covered by the 3-clause BSD License (see LICENSE file for details).
-%   See https://github.com/MATPOWER/wy-wind-model for more info.
+% wsf : wind speed forecasts, (np x nb x nw) : (ex, 25 x 5 x 16)
+%       first hour : realization, later hours : forecasts
+%
+% 2022.03.27
+% Wooyoung Jeon
 
-%% convert BIN spec argument to NB and BIN_BOUNDS
-[nb, bin_bounds] = wy_wind_bins(bins);
+if nargin <6
+    bins = 5;
+    nb=bins;
+    if nargin < 5
+        np = 24;
+        if nargin <4
+            pidx0 = 5112;
+            if nargin <3
+                widx=[1:16];
+            end
+        end
+    end
+end
 
-%% generate forecasts from model
+% test input
+% clear all;
+% load('winddata_npcc.mat');
+% load('model_npcc.mat');
+% pidx0=5112;
+% np=24;
+% bins=6;
+% widx=[1:16];
+
+if isscalar(bins)
+    nb=bins;
+    if nb==1
+        bin_bound = [-inf inf];
+    elseif nb==2
+        bin_bound = [-inf 0 inf];
+    elseif nb==3
+        bin_bound = [-inf -1 1 inf];
+    elseif nb==4
+        bin_bound = [-inf -1 0 1 inf];
+    elseif nb==5        
+        bin_bound = [-inf -2 -1 1 2 inf];
+    elseif nb==6        
+        bin_bound = [-inf -2 -1 0 1 2 inf];
+    elseif nb==7        
+        bin_bound = [-inf -3 -2 -1  1 2 3 inf];
+    elseif nb==8        
+        bin_bound = [-inf -3 -2 -1 0 1 2 3 inf];
+    elseif nb==9        
+        bin_bound = [-inf -4 -3 -2 -1 1 2 3 4 inf];
+    elseif nb==10        
+        bin_bound = [-inf -4 -3 -2 -1 0 1 2 3 4 inf];
+    else
+        bin_bound = [-inf -2 -1 1 2 inf]; % default value if bins<0 or bins>10
+    end
+else
+    nb=length(bins)+1;
+    bin_bound = [-inf bins inf];
+end
+
+probcum = normcdf(bin_bound);   % cdf for each sd
+probref = probcum(1:end-1) + diff(normcdf(bin_bound))/2; % find mean prob location for each bin in normal dist
+bin_mean = norminv(probref); % find mean location for each bin in normal dist
+
+%bin_bound = [-inf, -2, -1, 1, 2, inf]; % bound by sd
+%bin_mean = [-2.37322, -1.38317, 0, 1.38317, 2.37322]; % mean by sd 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 1. initial setup for dataset and variables 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 nw = length(widx);
-wsf = zeros(nw, np, nb);    %% initialize output matrix
+nb=bins;
+ws0=pidx0;
 
-%-----  WY your code goes here  -----
-wsf(w, p, b) = 
+winddata = wind_data;
+
+% apply estimates for total wind
+coef_cycle = model.ols(:,2:end); % coefficient for cycles, (8x1)
+coef_mean = model.ols(:,1);    % coefficient for mean(constant), (1x1)
+
+rho = model.ar1;
+sd_wnr= sqrt(model.var_wnr);
+
+logws = log10(winddata+1);
+actwind = logws(pidx0:pidx0+np,:);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 3. inputs from econometric model
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% cycle information defined
+% PERIODS
+PY1 = 8766;
+PY2 = PY1 / 2;
+PD1 = 24;
+PD2 = PD1 / 2;
+
+% adjustment for calender cycle input, push 1 hour to the next
+% IMPORTANT: cycle hour, 1hour shifted as estimation is done this way
+% hour 0 to hour 24, 25hours, 
+% hour 0 needed for ar(1) process. at(t-1) is needed
+shift = 1;
+tt2=[ws0+shift:1:ws0+24+shift]';
+
+% cosine and sine of full year, half year, full day, half day
+c_y1 = cos( (2*pi()/ PY1) * tt2 );
+s_y1 = sin( (2*pi()/ PY1) * tt2 );
+c_y2 = cos( (2*pi()/ PY2) * tt2 );
+s_y2 = sin( (2*pi()/ PY2) * tt2 );
+c_d1 = cos( (2*pi()/ PD1) * tt2 );
+s_d1 = sin( (2*pi()/ PD1) * tt2 );
+c_d2 = cos( (2*pi()/ PD2) * tt2 );
+s_d2 = sin( (2*pi()/ PD2) * tt2 );
+
+% cycle variables in matrix
+var_cycle = [c_y1, s_y1, c_y2, s_y2, c_d1, s_d1, c_d2, s_d2];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% 4. generates forecasted bin, ff
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% yy:  yact : realized LWIND
+% ww: yfit : ols fitted LWIND => MEAN
+% uu: yres : ols residual of LWIND
+% yres_fit : ar(1) fitted LWIND
+% ee: wnr : ar(1) white noise residual of LWIND
+% ff: yfor : forecasted LWIND = yfit+yres_fit = ww + yres_fit
+
+for i=1:nw
+
+ww= coef_mean(widx(i)) + var_cycle * coef_cycle(widx(i),:)'; %yfit
+yy = actwind(:,widx(i));   % yact
+uu = yy - ww;   %yres
+
+yres_fit = zeros(length(actwind),1);
+for t=1:np-1
+    yres_fit(t+1) = rho(widx(i)) * uu(t);
+end
+
+ee = uu - yres_fit;
+ee(1,1) = 0; % initial value does not mean anything
+
+% forecasted LWIND
+ff0 = zeros(np+1,1);
+ff0(1) = yy(1,1);
+for t=1:np
+    ff0(t+1) = ww(t+1) - rho(widx(i))*ww(t) + rho(widx(i))*ff0(t);
+end
+
+sumrho=[];
+var_for=[]; % var[forecasted LWIND]
+for t=1:np
+    sumrho(t,1) = (rho(widx(i))^2)^(t-1);
+end
+
+for t=1:np
+    var_for(t,1) = sd_wnr(widx(i))^2 * sum(sumrho(1:t,1));
+end
+
+sd_for = sqrt(var_for); % sqrt(var[forecasted LWIND])
+
+
+% forecasted wind, 95% confidence interval
+ff_band =zeros(np,3);
+ff_band(:,2) = ff0(2:end,1);
+ff_band(:,1) = ff_band(:,2) - 1.96*sd_for;
+ff_band(:,3) = ff_band(:,2) + 1.96*sd_for;
+
+%bin_bound = [-inf, -2, -1, 1, 2, inf]; % bound by sd
+%bin_mean = [-2.37322, -1.38317, 0, 1.38317, 2.37322]; % mean by sd 
+
+
+%bin_bound = [-inf, -2, -1, 1, 2, inf]; % bound by sd
+%bin_mean = [-2.37322, -1.38317, 0, 1.38317, 2.37322]; % mean by sd 
+bm = ff_band(:,2) + sd_for * bin_mean;
+bb = ff_band(:,2) + sd_for * bin_bound;
+
+
+% determine transition matrix
+
+% uuu : AR residual for bin mean i in hour t-1
+% bf : forecast for bin mean i in hour t
+
+bf0=[];
+bf=[];
+
+uuu0 = zeros(np+1,nb); % t starting at 0, 25 hours
+
+uuu0(1,3) = uu(25,1);
+for t=2:np+1
+    uuu0(t,:) = bm(t-1,:) - ff0(t,1);
+end
+
+uuu = uuu0(2:end,:);
+
+for t=2:np+1
+    bf0(t,:) = ff0(t,1) + rho(widx(i))*uuu0(t-1,:);
+end
+
+midx = floor((nb+1)/2);% index for central bin
+
+bf0(1,:) = 0;
+bf0(1,midx) = ff0(1,1);
+
+bf =bf0(2:end,:);
+bf(1,:) = bm(1,midx); 
+
+wsf_log(:,:,i) = bf;
+end
+
+wsf = (10.^wsf_log)-1; % convert log(wind+1) tp wind speed
