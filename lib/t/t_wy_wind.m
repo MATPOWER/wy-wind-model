@@ -13,6 +13,12 @@ if nargin < 1
     quiet = 0;
 end
 
+if have_feature('octave')
+    file_in_path_warn_id = 'Octave:data-file-in-path';
+    s1 = warning('query', file_in_path_warn_id);
+    warning('off', file_in_path_warn_id);
+end
+
 %% initialize parameters of interest
 widx = [2;6;16];        %% wind sites of interest
 np = 12;                %% use a 12 period horizon
@@ -76,5 +82,9 @@ t_is(wsr_data, s.wsr_data, 12, t);
 t = 'wy_wind_speed2power';
 t_is(wpr_data, s.wpr_data, 12, t);
 
+
+if have_feature('octave')
+    warning(s1.state, file_in_path_warn_id);
+end
 
 t_end;
