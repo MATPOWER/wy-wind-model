@@ -50,20 +50,8 @@ jobs:
         git clone --depth=1 https://github.com/MATPOWER/mptest.git $HOME/mptest
         echo "MPTEST_PATH=$HOME/mptest/lib:$HOME/mptest/lib/t" >> $GITHUB_ENV
 
-    - name: Install Statistics Toolbox (Octave)
-      if: matrix.platform == 'octave'
-      run: $ML_CMD "pkg install -forge io; pkg install -forge statistics; pkg load io; pkg load statistics; savepath"
-
     - name: Install WY-Wind-Model
       run: echo "TEST_PATH=${GITHUB_WORKSPACE}/lib:${GITHUB_WORKSPACE}/lib/t:${MPTEST_PATH}" >> $GITHUB_ENV
-
-#     - name: Test WY-Wind-Model (Octave)
-#       if: matrix.platform == 'octave'
-#       run: env $ML_PATHVAR=$TEST_PATH $ML_CMD "pkg load statistics; test_wy_wind(0,1)"
-# 
-#     - name: Test WY-Wind-Model (MATLAB)
-#       if: matrix.platform == 'matlab'
-#       run: env $ML_PATHVAR=$TEST_PATH $ML_CMD "test_wy_wind(0,1)"
 
     - name: Test WY-Wind-Model
       run: env $ML_PATHVAR=$TEST_PATH $ML_CMD "test_wy_wind(0,1)"

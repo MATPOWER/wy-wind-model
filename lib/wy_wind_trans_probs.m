@@ -88,7 +88,7 @@ sdf = sqrt(vf);
  sb=[-inf -2 -1 1 2 inf];
  sm = [];
  for i=1:bins 
-     sm(i)=norminv(normcdf(sb(i)) + (normcdf(sb(i+1)) - normcdf(sb(i))) / 2) ;
+     sm(i)=norminvb(normcdfb(sb(i)) + (normcdfb(sb(i+1)) - normcdfb(sb(i))) / 2) ;
  end
 
  tp1=[];
@@ -97,13 +97,13 @@ sdf = sqrt(vf);
 
  % tp(1) : probability of being in each bin
  for j=1:nb
-     tp1(midx,j,1)= normcdf(sb(j+1)) - normcdf(sb(j)) ; 
+     tp1(midx,j,1)= normcdfb(sb(j+1)) - normcdfb(sb(j)) ; 
  end
  %sm=[-2.37322 -1.38317 0 1.38317 2.37322];
  for t=2:np
     for i=1:nb
         for j=1:nb
-             tp1(i,j,t) = normcdf(sb(j+1)*sqrt(vf(t))-rho*sm(i)*sqrt(vf(t-1)),0,sdf(1,1))- normcdf(sb(j)*sqrt(vf(t))-rho*sm(i)*sqrt(vf(t-1)),0,sdf(1,1));
+             tp1(i,j,t) = normcdfb(sb(j+1)*sqrt(vf(t))-rho*sm(i)*sqrt(vf(t-1)),0,sdf(1,1))- normcdfb(sb(j)*sqrt(vf(t))-rho*sm(i)*sqrt(vf(t-1)),0,sdf(1,1));
         end
     end
  end
