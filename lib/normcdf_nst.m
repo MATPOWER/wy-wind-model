@@ -1,17 +1,17 @@
-function pout = normcdfb(xin, mu, sigma)
+function pout = normcdf_nst(xin, mu, sigma)
 % assumes normalized function, use of standard function erfc
 % See
 % https://www.mathworks.com/help/stats/normcdf.html
-% probcumb = normcdfb(bin_bound);
+% probcumb = normcdf_nst(bin_bound);
 
-% 2022.04.27
+% 2022.05.02
 % Alberto J. Lamadrid L.
 
 if nargin<3
-	sigma = 1;
-	if nargin<2
-		mu = 0;
-	end
+    sigma = 1;
+    if nargin<2
+        mu = 0;
+    end
 end
 
 znorm = (xin-mu) ./ sigma;

@@ -72,9 +72,9 @@ else
     bin_bound = [-inf bins inf];
 end
 
-probcum = normcdfb(bin_bound);   % cdf for each sd
-probref = probcum(1:end-1) + diff(normcdfb(bin_bound))/2; % find mean prob location for each bin in normal dist
-bin_mean = norminvb(probref); % find mean location for each bin in normal dist
+probcum = normcdf_nst(bin_bound);   % cdf for each sd
+probref = probcum(1:end-1) + diff(normcdf_nst(bin_bound))/2; % find mean prob location for each bin in normal dist
+bin_mean = norminv_nst(probref); % find mean location for each bin in normal dist
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1. initial setup for dataset and variables 
