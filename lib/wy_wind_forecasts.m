@@ -1,4 +1,4 @@
-function [wsf] = wy_wind_forecasts(wind_data, model, widx, pidx0, np, bins)
+function [wsf] = wy_wind_forecasts(model, widx, pidx0, ws0, np, bins)
 
 % % wind_data := struct with fields:
 %        wind_speed = (nw_all x np_all) matrix of wind speeds (in m/s), corresponding
@@ -13,7 +13,7 @@ function [wsf] = wy_wind_forecasts(wind_data, model, widx, pidx0, np, bins)
 %        wind speed data, m/s
 % widx = (nw x 1) vector of indices of wind sites of interest
 % pidx0 = scalar period index of first period of horizon of interest
-% wsr = (nw x np) matrix of wind speed realizations
+% ws0 = (nw x 1), initial wind speed
 % np    :number of periods of interest (e.g. for planning horizon)
 % bins  :bin specification, supplied as either:
 %        (1) number of bins (nb), or
@@ -41,14 +41,6 @@ if nargin <6
     end
 end
 
-% test input
-% clear all;
-% load('winddata_npcc.mat');
-% load('model_npcc.mat');
-% pidx0=5112;
-% np=24;
-% bins=6;
-% widx=[1:16];
 
 if isscalar(bins)
     nb=bins;
@@ -84,18 +76,14 @@ probcum = normcdf(bin_bound);   % cdf for each sd
 probref = probcum(1:end-1) + diff(normcdf(bin_bound))/2; % find mean prob location for each bin in normal dist
 bin_mean = norminv(probref); % find mean location for each bin in normal dist
 
-%bin_bound = [-inf, -2, -1, 1, 2, inf]; % bound by sd
-%bin_mean = [-2.37322, -1.38317, 0, 1.38317, 2.37322]; % mean by sd 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 1. initial setup for dataset and variables 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 nw = length(widx);
 nb=bins;
-ws0=pidx0;
 
-winddata = wind_data;
+%winddata = log_winddata;
 
 % apply estimates for total wind
 coef_cycle = model.ols(:,2:end); % coefficient for cycles, (8x1)
@@ -103,9 +91,6 @@ coef_mean = model.ols(:,1);    % coefficient for mean(constant), (1x1)
 
 rho = model.ar1;
 sd_wnr= sqrt(model.var_wnr);
-
-logws = log10(winddata+1);
-actwind = logws(pidx0:pidx0+np,:);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 3. inputs from econometric model
@@ -122,7 +107,7 @@ PD2 = PD1 / 2;
 % hour 0 to hour 24, 25hours, 
 % hour 0 needed for ar(1) process. at(t-1) is needed
 shift = 1;
-tt2=[ws0+shift:1:ws0+24+shift]';
+tt2=[pidx0+shift:1:pidx0+24+shift]';
 
 % cosine and sine of full year, half year, full day, half day
 c_y1 = cos( (2*pi()/ PY1) * tt2 );
@@ -148,26 +133,13 @@ var_cycle = [c_y1, s_y1, c_y2, s_y2, c_d1, s_d1, c_d2, s_d2];
 % ee: wnr : ar(1) white noise residual of LWIND
 % ff: yfor : forecasted LWIND = yfit+yres_fit = ww + yres_fit
 
+
 for i=1:nw
 
+yINIT = ws0(i);
 ww= coef_mean(widx(i)) + var_cycle * coef_cycle(widx(i),:)'; %yfit
-yy = actwind(:,widx(i));   % yact
-uu = yy - ww;   %yres
+uINIT = yINIT - ww(1);
 
-yres_fit = zeros(length(actwind),1);
-for t=1:np-1
-    yres_fit(t+1) = rho(widx(i)) * uu(t);
-end
-
-ee = uu - yres_fit;
-ee(1,1) = 0; % initial value does not mean anything
-
-% forecasted LWIND
-ff0 = zeros(np+1,1);
-ff0(1) = yy(1,1);
-for t=1:np
-    ff0(t+1) = ww(t+1) - rho(widx(i))*ww(t) + rho(widx(i))*ff0(t);
-end
 
 sumrho=[];
 var_for=[]; % var[forecasted LWIND]
@@ -176,29 +148,21 @@ for t=1:np
 end
 
 for t=1:np
-    var_for(t,1) = sd_wnr(widx(i))^2 * sum(sumrho(1:t,1));
+    var_for(t,1) = sd_wnr(widx(i), widx(i))^2 * sum(sumrho(1:t,1));
 end
 
 sd_for = sqrt(var_for); % sqrt(var[forecasted LWIND])
 
 
-% forecasted wind, 95% confidence interval
-ff_band =zeros(np,3);
-ff_band(:,2) = ff0(2:end,1);
-ff_band(:,1) = ff_band(:,2) - 1.96*sd_for;
-ff_band(:,3) = ff_band(:,2) + 1.96*sd_for;
+% forecasted LWIND
+ff0 = zeros(np+1,1);
+ff0(1) = yINIT;
+for t=1:np
+    ff0(t+1) = ww(t+1) - rho(widx(i))*ww(t) + rho(widx(i))*ff0(t);
+end
+ff = ff0(2:end);
 
-%bin_bound = [-inf, -2, -1, 1, 2, inf]; % bound by sd
-%bin_mean = [-2.37322, -1.38317, 0, 1.38317, 2.37322]; % mean by sd 
-
-
-%bin_bound = [-inf, -2, -1, 1, 2, inf]; % bound by sd
-%bin_mean = [-2.37322, -1.38317, 0, 1.38317, 2.37322]; % mean by sd 
-bm = ff_band(:,2) + sd_for * bin_mean;
-bb = ff_band(:,2) + sd_for * bin_bound;
-
-
-% determine transition matrix
+bm = ff0(2:end) + sd_for * bin_mean;
 
 % uuu : AR residual for bin mean i in hour t-1
 % bf : forecast for bin mean i in hour t
@@ -208,26 +172,24 @@ bf=[];
 
 uuu0 = zeros(np+1,nb); % t starting at 0, 25 hours
 
-uuu0(1,3) = uu(25,1);
+midx = floor((nb+1)/2);% index for central bin
+
+uuu0(1,midx) = uINIT;
 for t=2:np+1
     uuu0(t,:) = bm(t-1,:) - ff0(t,1);
 end
 
 uuu = uuu0(2:end,:);
 
-for t=2:np+1
-    bf0(t,:) = ff0(t,1) + rho(widx(i))*uuu0(t-1,:);
+for t=2:np
+    bf0(t-1,:) = ff(t,1) + rho(widx(i))*uuu0(t,:);
 end
 
-midx = floor((nb+1)/2);% index for central bin
+bf_temp = ones(1,nb) * ff(1);
+bf = [bf_temp;bf0];
 
-bf0(1,:) = 0;
-bf0(1,midx) = ff0(1,1);
-
-bf =bf0(2:end,:);
-bf(1,:) = bm(1,midx); 
-
-wsf_log(:,:,i) = bf;
+bf_all(:,:,i) = bf; 
+wsf(:,:,i) = bf;
 end
 
-wsf = (10.^wsf_log)-1; % convert log(wind+1) tp wind speed
+%wsf = (10.^wsf_log)-1; % convert log(wind+1) tp wind speed
