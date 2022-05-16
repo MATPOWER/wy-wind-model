@@ -46,20 +46,29 @@ end
 
 nw = length(widx);
 
-%  clear all;
-%  load('model_npcc.mat');
-%  pidx0=5112;
-%  np=24;
-%  nw = 16;
-% wind_data=model;
+%   clear all;
+%   load('model_npcc.mat');
+%   pidx0=5112;
+%   np=12;
+%   widx=[1 3 5];
+%   nw = length(widx);
+%  wind_data=model;
 
 % if wind_data is struct variable, it is model => generate realization
 if isstruct(wind_data)
 model=wind_data;
 
+% recreate var_wnr for selected wind site, widx
+temp_var = zeros(nw,nw);
+for i=1:nw
+    for j=1:nw
+        temp_var(j,i) = model.var_wnr(widx(j),widx(i));
+    end
+end
+
  % copy lower triangular part to upper triangular part to make it symmatric
  % var-covar matrix
- var_wnr=tril(model.var_wnr,-1)'+model.var_wnr;
+ var_wnr=tril(temp_var,-1)'+temp_var;
 
  % generate randomized wnr based on normal distribution using var-covar
  % matrix
@@ -76,7 +85,7 @@ for t=1:nw
         for j=1:np
             % create matrix of [e1 e1*ar1 e1*ar1^2 ... e1*ar1^23] for each
             % e_i
-            temp1(i,j,t) = gen_wnr(i,t) .*model.ar1(t)^(j-1);
+            temp1(i,j,t) = gen_wnr(i,t) .*model.ar1(widx(t))^(j-1);
         end
     end
     temp2=squeeze(temp1(:,:,t))';
@@ -102,7 +111,7 @@ PD2 = PD1 / 2;
 % hour 1 to hour 24, 24hours, 
 % hour 0 needed for ar(1) process. at(t-1) is needed
 shift = 1;
-tt2=[pidx0+shift+1:1:pidx0+24+shift]';
+tt2=[pidx0+shift+1:1:pidx0+np+shift]';
 
 % cosine and sine of full year, half year, full day, half day
 c_y1 = cos( (2*pi()/ PY1) * tt2 );
@@ -118,7 +127,7 @@ s_d2 = sin( (2*pi()/ PD2) * tt2 );
 var_cycle = [c_y1, s_y1, c_y2, s_y2, c_d1, s_d1, c_d2, s_d2];
 
 for i=1:nw
-    mean_logwind(:,i)= model.ols(i,1) + var_cycle * model.ols(i,2:end)'; %yfit, (np x nw)
+    mean_logwind(:,i)= model.ols(widx(i),1) + var_cycle * model.ols(widx(i),2:end)'; %yfit, (np x nw)
 end
 
  % ols + ar(1)
@@ -126,7 +135,9 @@ end
  realized_logwind = mean_logwind + ar_sum;
 
  % logwind to wind
- wsr = 10.^(realized_logwind) -1;
+ %wsr = 10.^(realized_logwind) -1;
+
+ wsr = realized_logwind;
 
 
  % if wind_data is not a struct variable, it is actual wind speed => take
