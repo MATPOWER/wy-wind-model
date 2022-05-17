@@ -13,7 +13,9 @@ if nargin < 1
     quiet = 0;
 end
 
-if have_feature('octave')
+is_octave = exist('OCTAVE_VERSION', 'builtin') == 5;    %% Octave
+
+if is_octave
     file_in_path_warn_id = 'Octave:data-file-in-path';
     s1 = warning('query', file_in_path_warn_id);
     warning('off', file_in_path_warn_id);
@@ -27,8 +29,9 @@ npd = 24;               %% number of periods per day in wind data
 dt0 = [2004 1 1 1 0 0]; %% date of first period in wind data, 2004-01-01 1:00am
 dt = [2004 8 1 0 0 0];  %% date of period of interest, 2004-08-01 12:00am
 pidx0 = wy_wind_date2pidx(npd, dt0, dt);    %% scalar index of period of interest
+init_rng(42);           %% initialize state of random number generator
 
-t_begin(13+np, quiet);
+t_begin(15+np, quiet);
 
 %% load the historical data
 % wind_data = load('winddata_npcc');  %% 26303 x 16
@@ -51,18 +54,18 @@ wsr_data = (10.^wsr_data)-1;    %% convert log(wind+1) to wind speed
 wsr_data1 = (10.^wsr_data1)-1;  %% convert log(wind+1) to wind speed
 
 %% convert realization from speed to power
-s2p = load('WindPowerCurveIEC.txt');
-s2p = s2p(:, 6)';       %% select curve for multi-turbine
+% s2p = load('WindPowerCurveIEC.txt');
+% s2p = s2p(:, 6)';       %% select curve for multi-turbine
 % wpr = wy_wind_speed2power(wsr_model, s2p);
 wpr_data = wy_wind_speed2power(wsr_data, 5);
 wpr_data1 = wy_wind_speed2power(wsr_data1, 5);
 
-% %% wind speed realization from model
-% wsr_model = wy_wind_realizations(model, widx, pidx0, np);
-% 
-% %% convert realization from speed to power
-% % wpr = wy_wind_speed2power(wsr_model, s2p);
-% wpr = wy_wind_speed2power(wsr_model, 5);
+%% wind speed realization from model
+wsr_model = wy_wind_realizations(model, widx, pidx0, np);
+
+%% convert realization from speed to power
+% wpr = wy_wind_speed2power(wsr_model, s2p);
+wpr_model = wy_wind_speed2power(wsr_model, 5);
 
 %% generate forecast
 ws0 = log_wind_data(pidx0, widx);
@@ -77,7 +80,15 @@ wpf = wy_wind_speed2power(wsf, 5);
 wpf1 = wy_wind_speed2power(wsf1, 5);
 
 %% load results
-% save t_wy_wind_results tp wsr_data wpr_data wsf wpf wsr_data1 wpr_data1 wsf1 wpf1
+% if is_octave
+%     oct = struct('wsr_model', wsr_model, 'wpr_model', wpr_model);
+%     s = load('t_wy_wind_results');
+%     ml = s.ml;
+%     save -v7 t_wy_wind_results.mat tp wsr_data wpr_data ml oct wsf wpf wsr_data1 wpr_data1 wsf1 wpf1
+% else                                        %% MATLAB
+%     ml = struct('wsr_model', wsr_model, 'wpr_model', wpr_model);
+%     save t_wy_wind_results.mat tp wsr_data wpr_data ml wsf wpf wsr_data1 wpr_data1 wsf1 wpf1
+% end
 s = load('t_wy_wind_results');
 
 t = 'wy_wind_trans_probs : ';
@@ -96,6 +107,20 @@ t_is(wpr_data, s.wpr_data, 12, [t 'wpr_t0']);
 t_is(wpr_data1, s.wpr_data1, 12, [t 'wpr_t1']);
 t_is(wpr_data(2:end, :), wpr_data1(1:end-1, :), 12, [t 'wpr_t0(2:end,:) == wpr_t1(1:end-1,:)']);
 
+t = 'wy_wind_realizations(model, ...) : ';
+if is_octave
+    t_is(wsr_model, s.oct.wsr_model, 12, [t 'wsr_model']);
+else
+    t_is(wsr_model, s.ml.wsr_model, 12, [t 'wsr_model']);
+end
+
+t = 'wy_wind_speed2power : ';
+if is_octave
+    t_is(wpr_model, s.oct.wpr_model, 12, [t 'wpr_model']);
+else
+    t_is(wpr_model, s.ml.wpr_model, 12, [t 'wpr_model']);
+end
+
 t = 'wy_wind_forecasts : ';
 t_is(wsf, s.wsf, 12, [t 'wsf_t0']);
 t_is(wsf1, s.wsf1, 12, [t 'wsf_t1']);
@@ -106,8 +131,15 @@ t_is(wpf, s.wpf, 12, [t 'wpf_t0']);
 t_is(wpf1, s.wpf1, 12, [t 'wpf_t1']);
 t_ok(norm(wpf(2:end, :, 1) - wpf1(1:end-1, :, 1)) > 0.1, [t 'wpf_t0(2:end,:,1) ~= wpf_t1(1:end-1,:,1)']);
 
-if have_feature('octave')
+if is_octave
     warning(s1.state, file_in_path_warn_id);
 end
 
-t_end;
+t_end
+
+function init_rng(N)
+if exist('OCTAVE_VERSION', 'builtin') == 5  %% Octave
+    randn('state', [1:N]);
+else                                        %% MATLAB
+    rng(N);
+end
