@@ -25,11 +25,30 @@ function [nb, bin_bounds] = wy_wind_bins(bins)
 
 if isscalar(bins)
     nb = bins;
-
-    %-----  WY your code goes here  -----
-    % just need to assume something about the way the boundaries are
-    % determined from a single number of bins NB
-    bin_bounds = 
+    switch nb
+        case 1
+            bin_bounds = [-inf inf];
+        case 2
+            bin_bounds = [-inf 0 inf];
+        case 3
+            bin_bounds = [-inf -1 1 inf];
+        case 4
+            bin_bounds = [-inf -1 0 1 inf];
+        case 5
+            bin_bounds = [-inf -2 -1 1 2 inf];
+        case 6
+            bin_bounds = [-inf -2 -1 0 1 2 inf];
+        case 7
+            bin_bounds = [-inf -3 -2 -1  1 2 3 inf];
+        case 8
+            bin_bounds = [-inf -3 -2 -1 0 1 2 3 inf];
+        case 9
+            bin_bounds = [-inf -4 -3 -2 -1 1 2 3 4 inf];
+        case 10
+            bin_bounds = [-inf -4 -3 -2 -1 0 1 2 3 4 inf];
+        otherwise
+            error('wy_wind_bins: BINS = %d, scalar BINS must be between 1 and 10', nb);
+    end
 else
     nb = length(bins) + 1;
     bin_bounds = [-Inf bins Inf];
