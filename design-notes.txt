@@ -6,14 +6,9 @@ The current plan is for WY to implement the following 6 (or 7) functions, and I 
 (2) wy_wind_realizations()
 (3) wy_wind_forecasts()
 (4) wy_wind_speed2power()
-(5) wy_wind_build_model()
+-- NOT INCLUDED: (5) wy_wind_build_model()
 (6) wy_wind_date2pidx()
 (7) wy_wind_pidx2date() (optional)
-
-We went over the first four in detail. We mentioned (5) in passing, for building the AR[1] models from the historical data. And the code for (6), which converts a date to a period index for the raw historical data, was implicitly included in (2), but upon further reflection I think it would simplify things further to split it out into its own function. This way as a user (e.g. me) is stepping through a horizon, he can simply increment a period index, rather than having to keep track of when he is crossing day, month, year boundaries. And (7) seems useful, but possibly not necessary.
-
-I've done my best to define the details of (5) and (6) below, but we can iterate on that if you have other ideas.
-
 
 Design of WY Wind functions
 ---------------------------
@@ -79,7 +74,7 @@ Functions
         wp = (nw x np x nb) 3D matrix of available wind power outputs as
             fraction of installed capacity
 
-    (5) model = wy_wind_build_model(wind_data)
+    NOT INCLUDED: (5) model = wy_wind_build_model(wind_data)
 
     (6) pidx = wy_wind_date2pidx(npd, dt0, dt)
         dt0 = 1 x 6 date vector of same format as dt, specifying initial period
