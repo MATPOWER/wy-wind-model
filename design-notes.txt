@@ -43,11 +43,12 @@ Common Notation / Data stuctures:
             but not included
     model = struct with fields:
         ar1 = (nw_all x 1) vector of AR[1] coefficients for individual sites
-        ols = (nw_all x 9) matrix of ?
-        var_wnr = (nw_all x nw_all) covariance matrix
+        ols = (nw_all x 9) matrix of OLS estimation parameters for individual
+            sites: [C CY SY1 CY2 SY2 CD1 SD1 CD2 SD2]
+        var_wnr = (nw_all x nw_all) covariance matrix for individual sites
         ar1_total = scalar AR[1] coefficient for total wind
-        ols_total
-        var_wnr_total
+        ols_total = 1 x 9 vector of OLS estimation parameters for total wind
+        var_wnr_total = variance for total wind
 
 Functions
     (1) tp = wy_wind_trans_probs(model, np, bins)
@@ -97,7 +98,7 @@ wy_wind_model
         save_model(file_name)
         load_model(file_name)
 
-        tp = transition_probs(obj, wind_data, ws0, np, bins)
+        tp = transition_probs(obj, np, bins)
         wsr = realizations(obj, widx, pidx0, np)
         wsr = realizations(obj, widx, pidx0, np, wind_data)
         wsf = forecasts(obj, widx, pidx0, np, bins)
@@ -110,6 +111,6 @@ The user could then do things like:
 
     m = wy_wind_model;
     m.load_model(file_name);
-    tp = m.transition_probs(wind_data, ws0, np, bins);
+    tp = m.transition_probs(np, bins);
     wsr = m.realizations(widx, pidx0, np);
     wsf = m.forecasts(widx, pidx0, np, bins);

@@ -31,7 +31,7 @@ dt = [2004 8 1 0 0 0];  %% date of period of interest, 2004-08-01 12:00am
 pidx0 = wy_wind_date2pidx(npd, dt0, dt);    %% scalar index of period of interest
 init_rng(42);           %% initialize state of random number generator
 
-t_begin(15+np, quiet);
+t_begin(15+2*np, quiet);
 
 %% load the historical data
 % wind_data = load('winddata_npcc');  %% 26303 x 16
@@ -94,6 +94,11 @@ s = load('t_wy_wind_results');
 t = 'wy_wind_trans_probs : ';
 t_is(length(tp), np, 12, [t 'length']);
 for p = 1:np
+    if p == 1
+        t_is(size(tp{p}), [1 bins], 12, sprintf('size(tp{%d})', p));
+    else
+        t_is(size(tp{p}), [bins bins], 12, sprintf('size(tp{%d})', p));
+    end
     t_is(tp{p}, s.tp{p}, 12, sprintf('%stp{%d}', t, p));
 end
 
