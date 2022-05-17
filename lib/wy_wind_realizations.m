@@ -72,8 +72,7 @@ end
 
  % generate randomized wnr based on normal distribution using var-covar
  % matrix
- rng('default')
- gen_wnr = mvnrnd(zeros(1,nw),var_wnr,np);
+ gen_wnr = mvnrnd_nst(zeros(1,nw),var_wnr,np);
 
  % ar(1) part
 % for t=1:np
