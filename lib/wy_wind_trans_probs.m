@@ -85,7 +85,7 @@ for t=1:np
 end
 
 sdf = sqrt(vf);
- sb=[-inf -2 -1 1 2 inf];
+ sb=bin_bound;
  sm = [];
  for i=1:bins 
      sm(i)=norminv_nst(normcdf_nst(sb(i)) + (normcdf_nst(sb(i+1)) - normcdf_nst(sb(i))) / 2) ;
