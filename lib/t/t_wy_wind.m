@@ -23,6 +23,7 @@ end
 
 %% initialize parameters of interest
 widx = [2;6;16];        %% wind sites of interest
+nw = length(widx);      %% number of wind sites of interest
 np = 12;                %% use a 12 period horizon
 bins = 4;               %% use 4 bins for forecasts
 npd = 24;               %% number of periods per day in wind data
@@ -31,7 +32,7 @@ dt = [2004 8 1 0 0 0];  %% date of period of interest, 2004-08-01 12:00am
 pidx0 = wy_wind_date2pidx(npd, dt0, dt);    %% scalar index of period of interest
 init_rng(42);           %% initialize state of random number generator
 
-t_begin(15+2*np, quiet);
+t_begin(19+2*np, quiet);
 
 %% load the historical data
 % wind_data = load('winddata_npcc');  %% 26303 x 16
@@ -103,16 +104,19 @@ for p = 1:np
 end
 
 t = 'wy_wind_realizations(data, ...) : ';
+t_is(size(wsr_data), [np, nw], 12, [t 'size(wsr)']);
 t_is(wsr_data, s.wsr_data, 12, [t 'wsr_t0']);
 t_is(wsr_data1, s.wsr_data1, 12, [t 'wsr_t1']);
 t_is(wsr_data(2:end, :), wsr_data1(1:end-1, :), 12, [t 'wsr_t0(2:end,:) == wsr_t1(1:end-1,:)']);
 
 t = 'wy_wind_speed2power : ';
+t_is(size(wpr_data), [np, nw], 12, [t 'size(wpr)']);
 t_is(wpr_data, s.wpr_data, 12, [t 'wpr_t0']);
 t_is(wpr_data1, s.wpr_data1, 12, [t 'wpr_t1']);
 t_is(wpr_data(2:end, :), wpr_data1(1:end-1, :), 12, [t 'wpr_t0(2:end,:) == wpr_t1(1:end-1,:)']);
 
 t = 'wy_wind_realizations(model, ...) : ';
+t_is(size(wsr_model), [np, nw], 12, [t 'size(wsr_model)']);
 if is_octave
     t_is(wsr_model, s.oct.wsr_model, 12, [t 'wsr_model']);
 else
@@ -120,6 +124,7 @@ else
 end
 
 t = 'wy_wind_speed2power : ';
+t_is(size(wsr_model), [np, nw], 12, [t 'size(wpr_model)']);
 if is_octave
     t_is(wpr_model, s.oct.wpr_model, 12, [t 'wpr_model']);
 else
