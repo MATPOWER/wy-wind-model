@@ -76,17 +76,18 @@ Functions
 
     (3) wsf = wy_wind_forecasts(model, widx, pidx0, np, bins)
         pidx0 = scalar period index of first period of horizon of interest
-        wsf = (nw x np x nb) 3D matrix of bin means of wind speed forecast
+        wsf = (np x nb x nw) 3D matrix of bin means of wind forecast, units
+            are consistent with those used by model
 
     (4) wp = wy_wind_speed2power(ws, s2p)
-        ws = (nw x np x nb) 3D matrix of wind speeds
+        ws = 2-D or 3-D matrix of wind speeds in m/s
         s2p = (1 x (ws_max+1)) vector (to be used for all sites of interest) or
             (nw x (ws_max+1)) matrix of fractions (for nw individual sites),
             used as lookup table for converting wind speed to wind power, as
             fraction of installed capacity, where 1st and last cols correspond
             to wind speeds of 0 m/s and ws_max m/s, respectively
-        wp = (nw x np x nb) 3D matrix of available wind power outputs as
-            fraction of installed capacity
+        wp = 2-D or 3-D matrix of available wind power outputs as
+            fraction of installed capacity, dimensions correspond to ws
 
     NOT INCLUDED: (5) model = wy_wind_build_model(wind_data)
 

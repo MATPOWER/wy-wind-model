@@ -25,14 +25,14 @@ end
 widx = [2;6;16];        %% wind sites of interest
 nw = length(widx);      %% number of wind sites of interest
 np = 12;                %% use a 12 period horizon
-bins = 4;               %% use 4 bins for forecasts
+nb = 4;                 %% use 4 bins for forecasts
 npd = 24;               %% number of periods per day in wind data
 dt0 = [2004 1 1 1 0 0]; %% date of first period in wind data, 2004-01-01 1:00am
 dt = [2004 8 1 0 0 0];  %% date of period of interest, 2004-08-01 12:00am
 pidx0 = wy_wind_date2pidx(npd, dt0, dt);    %% scalar index of period of interest
 init_rng(42);           %% initialize state of random number generator
 
-t_begin(19+2*np, quiet);
+t_begin(21+2*np, quiet);
 
 %% load the historical data
 % wind_data = load('winddata_npcc');  %% 26303 x 16
@@ -46,7 +46,7 @@ s = load('model_npcc');
 model = s.model;
 
 %% create transition probabilities
-tp = wy_wind_trans_probs(model, np, bins);
+tp = wy_wind_trans_probs(model, np, nb);
 
 %% wind speed realization from data
 wsr_data = wy_wind_realizations(log_wind_data, widx, pidx0, np);
@@ -70,8 +70,8 @@ wpr_model = wy_wind_speed2power(wsr_model, 5);
 
 %% generate forecast
 ws0 = log_wind_data(pidx0, widx);
-wsf = wy_wind_forecasts(model, widx, pidx0, ws0, np, bins);
-wsf1 = wy_wind_forecasts(model, widx, pidx0+1, ws0, np, bins);
+wsf = wy_wind_forecasts(model, widx, pidx0, ws0, np, nb);
+wsf1 = wy_wind_forecasts(model, widx, pidx0+1, ws0, np, nb);
 wsf = (10.^wsf)-1;      %% convert log(wind+1) to wind speed
 wsf1 = (10.^wsf1)-1;    %% convert log(wind+1) to wind speed
 
@@ -96,9 +96,9 @@ t = 'wy_wind_trans_probs : ';
 t_is(length(tp), np, 12, [t 'length']);
 for p = 1:np
     if p == 1
-        t_is(size(tp{p}), [1 bins], 12, sprintf('size(tp{%d})', p));
+        t_is(size(tp{p}), [1 nb], 12, sprintf('size(tp{%d})', p));
     else
-        t_is(size(tp{p}), [bins bins], 12, sprintf('size(tp{%d})', p));
+        t_is(size(tp{p}), [nb nb], 12, sprintf('size(tp{%d})', p));
     end
     t_is(tp{p}, s.tp{p}, 12, sprintf('%stp{%d}', t, p));
 end
@@ -132,11 +132,13 @@ else
 end
 
 t = 'wy_wind_forecasts : ';
+t_is(size(wsf), [np, nb, nw], 12, [t 'size(wsf)']);
 t_is(wsf, s.wsf, 12, [t 'wsf_t0']);
 t_is(wsf1, s.wsf1, 12, [t 'wsf_t1']);
 t_ok(norm(wsf(2:end, :, 1) - wsf1(1:end-1, :, 1)) > 1, [t 'wsf_t0(2:end,:) ~= wsf_t1(1:end-1,:)']);
 
 t = 'wy_wind_speed2power : ';
+t_is(size(wpf), [np, nb, nw], 12, [t 'size(wpf)']);
 t_is(wpf, s.wpf, 12, [t 'wpf_t0']);
 t_is(wpf1, s.wpf1, 12, [t 'wpf_t1']);
 t_ok(norm(wpf(2:end, :, 1) - wpf1(1:end-1, :, 1)) > 0.1, [t 'wpf_t0(2:end,:,1) ~= wpf_t1(1:end-1,:,1)']);
