@@ -123,26 +123,37 @@ the following:
 
 wy_wind_model
     properties
-        ar1_total - scalar
-        ar1(nw) - 16 x 1 vector
+        type
+        nw
+        widx
+        ar1
+        ols
+        var_wnr
+        ar1_total
+        ols_total
+        var_wnr_total
+        s2p
     methods
-        build_model(wind_data)
-        save_model(file_name)
-        load_model(file_name)
+        wy_wind_model(model_fname, widx, s2p)
 
         tp = transition_probs(obj, np, bins)
-        wsr = realizations(obj, widx, pidx0, np)
-        wsr = realizations(obj, widx, pidx0, np, wind_data)
-        wsf = forecasts(obj, widx, pidx0, np, bins)
+        wsr = realizations(obj, pidx0, np)
+        wsr = realizations(obj, pidx0, np, wind_data)
+        wsf = forecasts(obj, pidx0, ws0, np, bins)
+        wp = speed2power(obj, ws)
 
-The user could then do things like:
+The user could then do things like ...
+    wm = wy_wind_model('model_npcc');
+... or ...
+    wm = wy_wind_model('model_npcc', widx);
+... or ...
+    s2p = wy_wind_power_curve_data(4, 'WindPowerCurveIEC.txt');
+    wm = wy_wind_model('model_npcc', ':', s2p);
 
-    m = wy_wind_model;
-    m.build_model(wind_data);
-    m.save(file_name);
+... then ...
 
-    m = wy_wind_model;
-    m.load_model(file_name);
-    tp = m.transition_probs(np, bins);
-    wsr = m.realizations(widx, pidx0, np);
-    wsf = m.forecasts(widx, pidx0, np, bins);
+    tp = wm.transition_probs(np, bins);
+    wsr = wm.realizations(pidx0, np);
+    wpr = wm.speed2power(wsr);
+    wsf = wm.forecasts(pidx0, np, bins);
+    wpf = wm.speed2power(wsf);

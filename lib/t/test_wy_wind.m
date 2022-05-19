@@ -32,6 +32,7 @@ tests = {};
 tests{end+1} = 't_wy_wind_date2pidx';
 tests{end+1} = 't_wy_wind_pidx2date';
 tests{end+1} = 't_wy_wind';
+tests{end+1} = 't_wy_wind_model';
 
 %% run the tests
 all_ok = t_run_tests( tests, verbose );

@@ -36,7 +36,9 @@ function wsr = wy_wind_realizations(model, widx, pidx0, np)
 %   Covered by the 3-clause BSD License (see LICENSE file for details).
 %   See https://github.com/MATPOWER/wy-wind-model for more info.
 
-if isstruct(model)      %% generate realization from model
+if isnumeric(model) %% extract realization from data
+    wsr = model(pidx0:pidx0+np-1, widx);
+else                %% generate realization from model
     nw = length(widx);
 
     % recreate var_wnr for selected wind site, widx
@@ -109,6 +111,4 @@ if isstruct(model)      %% generate realization from model
 
     % ols + ar(1)
     wsr = mean_wind + ar_sum;
-else        %% extract realization from data
-    wsr = model(pidx0:pidx0+np-1, widx);
 end
