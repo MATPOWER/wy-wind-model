@@ -20,7 +20,10 @@ winddata_npcc.mat - wind speed data
         (8760 * 3 + 24 -1 = 26303)
 model_npcc.mat - model for log10(wind_data + 1)
     model - struct with model parameters for 16 sites based on winddata_npcc.mat
-
+WindPowerCurveIEC.txt - power curve lookup tables
+    col 1 is wind speeds from 0 to 30 m/s
+    cols 2-6 contain 5 power curves
+        1: IEC1, 2:IEC2, 3:IEC3, 4:Offshore, 5:Multi-turbine
 
 Design of WY Wind functions
 ---------------------------
@@ -96,6 +99,17 @@ Functions
             of raw historical data
 
     (7) dt = wy_wind_pidx2date(npd, dt0, pidx)
+    
+    (8) s2p = wy_wind_power_curve(idx, fname)
+        idx = index of power curve to extract from power curve data
+        fname =  name of raw text file containing power curve data as matrix
+            where 1st col is wind speed in m/s, and subsequent cols (2..N+1)
+            contain the power curves corresponding to idx (1..N) as fraction of
+            installed capacity, default file name is 'WindPowerCurveIEC.txt'
+        s2p = (m x 2) vector used as lookup table for converting wind
+            speed to wind power
+            col 1: wind speeds in m/s
+            col 2: corresponding power as fraction of installed capacity
 
 
 Object-oriented version
