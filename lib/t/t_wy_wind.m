@@ -65,34 +65,27 @@ tp = wy_wind_trans_probs(model, np, nb);
 %% wind speed realization from data
 wsr_data = wy_wind_realizations(log_wind_data, widx, pidx0, np);
 wsr_data1 = wy_wind_realizations(log_wind_data, widx, pidx0+1, np);
-wsr_data = (10.^wsr_data)-1;    %% convert log(wind+1) to wind speed
-wsr_data1 = (10.^wsr_data1)-1;  %% convert log(wind+1) to wind speed
+wsr_data_c = (10.^wsr_data)-1;      %% convert log(wind+1) to wind speed
 
 %% convert realization from speed to power
-% s2p = load('WindPowerCurveIEC.txt');
-% s2p = s2p(:, 6)';       %% select curve for multi-turbine
-% wpr = wy_wind_speed2power(wsr_model, s2p);
-wpr_data = wy_wind_speed2power(wsr_data, 5);
-wpr_data1 = wy_wind_speed2power(wsr_data1, 5);
+wpr_data = wy_wind_speed2power(wsr_data_c, 5);
+wpr_data1 = wy_wind_speed2power(wsr_data1, s2p, 1);
 
 %% wind speed realization from model
 wsr_model = wy_wind_realizations(model, widx, pidx0, np);
 
 %% convert realization from speed to power
-% wpr = wy_wind_speed2power(wsr_model, s2p);
-wpr_model = wy_wind_speed2power(wsr_model, 5);
+wpr_model = wy_wind_speed2power(wsr_model, 5, 1);
 
 %% generate forecast
 ws0 = log_wind_data(pidx0, widx);
 wsf = wy_wind_forecasts(model, widx, pidx0, ws0, np, nb);
 wsf1 = wy_wind_forecasts(model, widx, pidx0+1, ws0, np, nb);
-wsf = (10.^wsf)-1;      %% convert log(wind+1) to wind speed
-wsf1 = (10.^wsf1)-1;    %% convert log(wind+1) to wind speed
+wsf1_c = (10.^wsf1)-1;  %% convert log(wind+1) to wind speed
 
 %% convert forecast from speed to power
-% wpf = wy_wind_speed2power(wsf, s2p);
-wpf = wy_wind_speed2power(wsf, 5);
-wpf1 = wy_wind_speed2power(wsf1, 5);
+wpf = wy_wind_speed2power(wsf, s2p, 1);
+wpf1 = wy_wind_speed2power(wsf1_c, 5);
 
 %% load results
 % if is_octave
@@ -149,7 +142,7 @@ t = 'wy_wind_forecasts : ';
 t_is(size(wsf), [np, nb, nw], 12, [t 'size(wsf)']);
 t_is(wsf, s.wsf, 12, [t 'wsf_t0']);
 t_is(wsf1, s.wsf1, 12, [t 'wsf_t1']);
-t_ok(norm(wsf(2:end, :, 1) - wsf1(1:end-1, :, 1)) > 1, [t 'wsf_t0(2:end,:) ~= wsf_t1(1:end-1,:)']);
+t_ok(norm(wsf(2:end, :, 1) - wsf1(1:end-1, :, 1)) > 0.1, [t 'wsf_t0(2:end,:) ~= wsf_t1(1:end-1,:)']);
 
 t = 'wy_wind_speed2power : ';
 t_is(size(wpf), [np, nb, nw], 12, [t 'size(wpf)']);

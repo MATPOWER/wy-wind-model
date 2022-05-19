@@ -37,7 +37,6 @@ Common Notation / Data stuctures:
     nw = number of wind sites of interest
     npd = number of periods per day (typically 24, for hourly data)
     nb = number of bins used for wind model inputs for MOST
-    ws_max = max wind speed in m/s (for conversion table)
     widx = (nw x 1) vector of indices of wind sites of interest
     pidx = scalar period index for raw historical wind data
     dt = 1 x 6 standard Matlab date vector (yr, mo, day, hr, min, sec),
@@ -83,14 +82,19 @@ Functions
             are consistent with those used by model
 
     (4) wp = wy_wind_speed2power(ws, s2p)
-        ws = 2-D or 3-D matrix of wind speeds in m/s
-        s2p = (1 x (ws_max+1)) vector (to be used for all sites of interest) or
-            (nw x (ws_max+1)) matrix of fractions (for nw individual sites),
-            used as lookup table for converting wind speed to wind power, as
-            fraction of installed capacity, where 1st and last cols correspond
-            to wind speeds of 0 m/s and ws_max m/s, respectively
+        wp = wy_wind_speed2power(ws, idx)
+        wp = wy_wind_speed2power(ws, s2p, ws_type)
+        wp = wy_wind_speed2power(ws, idx, ws_type)
+        ws = 2-D or 3-D matrix of wind speeds
+        s2p = (m x 2) vector used as lookup table for converting wind
+            speed to wind power
+            col 1: wind speeds in m/s
+            col 2: corresponding power as fraction of installed capacity
+        ws_type = how to interpret ws input
+            0 (default) - ws is provided as raw wind speed in m/s
+            1 - ws is provided as log(raw_wind_speed+1)
         wp = 2-D or 3-D matrix of available wind power outputs as
-            fraction of installed capacity, dimensions correspond to ws
+            fraction of installed capacity, same dimensions as ws
 
     NOT INCLUDED: (5) model = wy_wind_build_model(wind_data)
 

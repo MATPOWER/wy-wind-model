@@ -1,59 +1,45 @@
-function [wp] = wy_wind_speed2power(ws, s2p)
-
-% ws = (np x nb x nw) 3D matrix of wind speeds (ex, 24 x 5 x 16)
+function wp = wy_wind_speed2power(ws, s2p, ws_type)
+%WY_WIND_SPEED2POWER  Converts wind speeds to wind power
 %
-% s2p = i) ((ws_max+1) x 1) vector (to be used for all sites of interest)
-%       of wind power output percentage for matching wind speed [0:30]
-%       ii) scalar to select a type of wind power curve from
-%       'WindPowerCurveIEC.txt'
-%        'WindPowerCurveIEC.txt' has 5 power curve,  (0 m/s ~ 30 m/s)
-%        1: IEC1, 2:IEC2, 3:IEC3, 4:Offshore, 5:Multi-turbine
-%        default is 5:Multi-turbine
-%       used as lookup table for converting wind speed to wind power, as
-%       fraction of installed capacity, where 1st and last cols correspond
-%       to wind speeds of 0 m/s and ws_max m/s, respectively, 
+%   WP = WY_WIND_SPEED2POWER(WS, S2P)
+%   WP = WY_WIND_SPEED2POWER(WS, IDX)
+%   WP = WY_WIND_SPEED2POWER(WS, S2P, WS_TYPE)
+%   WP = WY_WIND_SPEED2POWER(WS, IDX, WS_TYPE)
 %
-% wp = (nw x np x nb) 3D matrix of available wind power outputs as
-%             fraction of installed capacity
-% 2022.04.01
-% Wooyoung Jeon
+%   Inputs:
+%       WS  - 2-D (NP x NW) or 3-D (NP x NB x NW) matrix of wind speeds
+%       IDX - index of power curve to extract from default power curve data
+%           Default IDX is 5, for multi-turbine
+%       S2P - (M x 2) vector used as lookup table for converting wind
+%           speed to wind power
+%           col 1: wind speeds in m/s
+%           col 2: corresponding power as fraction of installed capacity
+%       WS_TYPE = how to interpret WS input
+%           0 (default) - WS is provided as raw wind speed in m/s
+%           1 - WS is provided as log(raw_wind_speed+1)
+%
+%   Output:
+%       WP = 2-D or 3-D matrix of available wind power outputs as
+%           fraction of installed capacity, same dimensions as WS
 
-if nargin <2
-    s2p=5;
+%   WY-Wind-Model
+%   Copyright (c) 2022, Wooyoung Jeon, Ray Zimmerman
+%   by Wooyoung Jeon & Ray Zimmerman
+%
+%   This file is part of WY-Wind-Model.
+%   Covered by the 3-clause BSD License (see LICENSE file for details).
+%   See https://github.com/MATPOWER/wy-wind-model for more info.
+
+%% convert log(raw_wind_speed + 1) to raw_wind_speed, if indicated
+if nargin == 3 && ws_type == 1
+    ws = (10 .^ ws) - 1;
 end
 
-% test input
-% s2p=5;
-% ws=wsf;
-
-[np,nb,nw]=size(ws); % dimension from ws
-
-powercurvefile='WindPowerCurveIEC.txt'; % call windpowercurve data
-powercurve=load(powercurvefile);
-
-%if s2p is scalar, use a powercurve from the file and select based on s2p value(1~5) 
-%if s2p is vector, use the entered powercurve
+%% load power curve, if necessary
 if isscalar(s2p)
-    idx_ws =  powercurve(:,1);
-    pc = powercurve(:,s2p+1);
-else
-    pc = s2p;
+    s2p = wy_wind_power_curve_data(s2p);
 end
 
-%% Variables from input files
-
-% To increase precision of interpolation, increase wind speed step from 1
-% to 0.01
-e=(numel(pc))*100+1;
-pgeneration=zeros(e,1);
-
-for i=1:(e)
-    pgeneration(i)=interp1(idx_ws,pc,(i-1)*0.01);
-    if isnan(pgeneration(i))==1
-        pgeneration(i)=0;
-    end
-end
-
-% interpolate ws with respect to idx_ws_100 and pgeneration
-idx_ws_100 = [0:0.01:max(idx_ws)+1];
-wp=interp1(idx_ws_100,pgeneration,ws);
+%% interpolate
+wp = zeros(size(ws));
+wp(:) = interp1(s2p(:, 1), s2p(:, 2), ws(:));
