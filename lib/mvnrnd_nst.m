@@ -4,6 +4,8 @@ function r = mvnrnd_nst(mu, sigma, n)
 %   Only handles the case where MU is a 1-by-D vector and SIGMA is a D-by-D
 %   co-variance matrix.
 %
+%   Removes dependency on Statistics Toolbox.
+%
 %   See https://stackoverflow.com/a/14517624 for description of the math.
 
 %   WY-Wind-Model
