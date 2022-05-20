@@ -98,6 +98,7 @@ Usage
     ws0 = log_wind_data(pidx0-1, widx);
     wsf = wm.forecasts(pidx0, ws0, 24, 4);
     ```
+
 *   Convert the wind speed forecasts to wind power realizations, expressed
     as fractions of installed capacity, using the 4th power curve (off-shore)
     defined in `'WindPowerCurveIEC.txt'`.
@@ -106,6 +107,9 @@ Usage
     wm = wy_wind_model('model_npcc', [2;6;15], s2p);
     wpf = wm.speed2power(wsf);
     ```
+
+*   See `ex_wy_wind_simulation.m` for an example of using WY-Wind-Model
+    to generate inputs for a receding horizon simulation.
 
 
 Documentation
