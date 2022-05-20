@@ -14,7 +14,7 @@ Notes on included data files
 ----------------------------
 
 winddata_npcc.mat - wind speed data
-    winddata - (26303 x 16) matrix of wind speeds in m/s corresponding to
+    wind_data - (26303 x 16) matrix of wind speeds in m/s corresponding to
         16 sites (ny1-ny9, ne1-ne7), 3 years (2004, 2005, 2006),
         beginning @ 2004-01-01 1:00 (1am), ending at 2006-12-31 23:00 (11pm)
         (8760 * 3 + 24 -1 = 26303)
@@ -46,7 +46,7 @@ Common Notation / Data stuctures:
         day = day-of-month (1-31)
         hr = hour-of-day (0-23)
         min = minute (0-59)
-        sec = minute (0-59)
+        sec = second (0-59)
     wind_data = (np_all x nw_all) matrix of wind speeds (in m/s), corresponding
         to np_all periods, nw_all specific sites, a particular npd, and a
         starting dt (dt0)
@@ -56,9 +56,12 @@ Common Notation / Data stuctures:
             coefficients), where initial -Inf and final +Inf are assumed,
             but not included
     model = struct with fields:
+        type = how to interpret ws input
+            0 (default) - ws is provided as raw wind speed in m/s
+            1 - ws is provided as log(raw_wind_speed+1)
         ar1 = (nw_all x 1) vector of AR[1] coefficients for individual sites
         ols = (nw_all x 9) matrix of OLS estimation parameters for individual
-            sites: [C CY SY1 CY2 SY2 CD1 SD1 CD2 SD2]
+            sites: [C CY1 SY1 CY2 SY2 CD1 SD1 CD2 SD2]
         var_wnr = (nw_all x nw_all) covariance matrix for individual sites
         ar1_total = scalar AR[1] coefficient for total wind
         ols_total = 1 x 9 vector of OLS estimation parameters for total wind
@@ -104,7 +107,7 @@ Functions
 
     (7) dt = wy_wind_pidx2date(npd, dt0, pidx)
     
-    (8) s2p = wy_wind_power_curve(idx, fname)
+    (8) s2p = wy_wind_power_curve_data(idx, fname)
         idx = index of power curve to extract from power curve data
         fname =  name of raw text file containing power curve data as matrix
             where 1st col is wind speed in m/s, and subsequent cols (2..N+1)

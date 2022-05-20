@@ -1,13 +1,13 @@
 function wsf = wy_wind_forecasts(model, widx, pidx0, ws0, np, bins)
 %WY_WIND_FORECASTS  Returns wind speed forecast bin means
 %
-%   WSF = WY_WIND_FORECASTS(MODEL, WIDX, PIDX0, NP, BINS)
+%   WSF = WY_WIND_FORECASTS(MODEL, WIDX, PIDX0, WS0, NP, BINS)
 %
 %   Inputs:
 %       MODEL - struct with fields:
 %           ar1 - (NW_ALL x 1) vector of AR[1] coefficients for individual sites
 %           ols - (NW_ALL x 9) matrix of OLS estimation parameters for
-%               individual wind sites: [C CY SY1 CY2 SY2 CD1 SD1 CD2 SD2]
+%               individual wind sites: [C CY1 SY1 CY2 SY2 CD1 SD1 CD2 SD2]
 %           var_wnr - (NW_ALL x NW_ALL) covariance matrix for individual sites
 %           ar1_total - scalar AR[1] coefficient for total wind
 %           ols_total - 1 x 9 vector of OLS estimation parameters for total wind

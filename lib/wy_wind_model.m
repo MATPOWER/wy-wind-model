@@ -13,7 +13,7 @@ classdef wy_wind_model < handle
 %       widx          - indices of wind sites in original data (use ':' for all)
 %       ar1           - nw x 1 vector of AR(1) coefficients for indiv sites
 %       ols           - nw x 9 matrix of OLS estimation parameters for
-%                       individual sites: [C CY SY1 CY2 SY2 CD1 SD1 CD2 SD2]
+%                       individual sites: [C CY1 SY1 CY2 SY2 CD1 SD1 CD2 SD2]
 %       var_wnr       - (nw x nw) covariance matrix for individual sites
 %       ar1_total     - scalar AR[1] coefficient for total wind
 %       ols_total     - 1 x 9 vector of OLS estimation parameters for total wind
@@ -34,7 +34,7 @@ classdef wy_wind_model < handle
 %           wsf = wm.forecasts(pidx0, ws0, np, bins)
 %       speed2power()
 %           wp = wm.speed2power(ws)
-%       display()          - called to display object on command line
+%       display() - called to display object on command line
 
 %   WY-Wind-Model
 %   Copyright (c) 2022, Wooyoung Jeon, Ray Zimmerman
@@ -52,7 +52,7 @@ classdef wy_wind_model < handle
         widx            %% indices of wind sites in original data
         ar1             %% nw x 1 vector of AR(1) coefficients for indiv sites
         ols             %% nw x 9 matrix of OLS estimation parameters for
-                        %% individual sites: [C CY SY1 CY2 SY2 CD1 SD1 CD2 SD2]
+                        %% individual sites: [C CY1 SY1 CY2 SY2 CD1 SD1 CD2 SD2]
         var_wnr         %% (nw x nw) covariance matrix for individual sites
         ar1_total       %% scalar AR[1] coefficient for total wind
         ols_total       %% 1 x 9 vector of OLS estimation parameters for total wind

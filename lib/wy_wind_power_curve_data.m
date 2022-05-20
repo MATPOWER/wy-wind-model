@@ -1,6 +1,7 @@
 function s2p = wy_wind_power_curve_data(idx, fname)
-%WY_WIND_POWER_CURVE_DATA  Converts wind speeds to wind power
+%WY_WIND_POWER_CURVE_DATA  Loads a power curve table from a file
 %
+%   S2P = WY_WIND_POWER_CURVE_DATA()
 %   S2P = WY_WIND_POWER_CURVE_DATA(IDX)
 %   S2P = WY_WIND_POWER_CURVE_DATA(IDX, FNAME)
 %

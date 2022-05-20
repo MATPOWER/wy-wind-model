@@ -1,5 +1,5 @@
 function r = mvnrnd_nst(mu, sigma, n)
-%MVNRND_NST  Replacement for MVNRND based only on RANDN.
+%MVNRND_NST  Replacement for MVNRND based on RANDN.
 %   R = MVNRND_NST(MU, SIGMA, N)
 %   Only handles the case where MU is a 1-by-D vector and SIGMA is a D-by-D
 %   co-variance matrix.
