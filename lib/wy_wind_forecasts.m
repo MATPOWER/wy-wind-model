@@ -71,7 +71,7 @@ PD2 = PD1 / 2;
 % hour 0 to hour 24, 25hours,
 % hour 0 needed for ar(1) process. at(t-1) is needed
 shift = 1;
-tt2=[pidx0+shift:1:pidx0+24+shift]';
+tt2=[pidx0+shift:1:pidx0+np+shift]';
 
 % cosine and sine of full year, half year, full day, half day
 c_y1 = cos( (2*pi()/ PY1) * tt2 );
