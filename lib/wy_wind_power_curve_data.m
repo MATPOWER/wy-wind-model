@@ -12,7 +12,7 @@ function s2p = wy_wind_power_curve_data(idx, fname)
 %           as a matrix where the first column is wind speed in m/s, and
 %           subsequent columns (2..N+1) contain the power curves corresponding
 %           to IDX (1..N) as fraction of installed capacity
-%           Default file name is 'WindPowerCurveIEC.txt'
+%           Default file name is 'wind_power_curve_EIC.txt'
 %               col 1 is wind speeds from 0 to 30 m/s
 %               cols 2-6 contain 5 power curves
 %                   1: IEC1, 2:IEC2, 3:IEC3, 4:Offshore, 5:Multi-turbine
@@ -33,7 +33,7 @@ function s2p = wy_wind_power_curve_data(idx, fname)
 
 %% default inputs
 if nargin < 2
-    fname = 'WindPowerCurveIEC.txt';
+    fname = 'wind_power_curve_EIC.txt';
     if nargin < 1
         idx = 5;
     end

@@ -1,7 +1,7 @@
 %EX_WY_WIND_SIMULATION Example of wind inputs for receding horizon
 
 %% load historical wind data
-s = load('winddata_npcc');
+s = load('wind_data_npcc');
 wind_data = s.wind_data;
 log_wind_data = log10(wind_data + 1);
 
@@ -13,7 +13,7 @@ nw = length(widx);  %% num of wind sites of interest
 nrh = 24;           %% length of receding horizon window
 
 %% create wind model
-wm = wy_wind_model('model_npcc', widx);
+wm = wy_wind_model('wind_model_npcc', widx);
 
 %% initialize outputs
 tp = cell(nrh, 1);

@@ -52,7 +52,7 @@ Usage
     the 16-site NPCC model:
     ```matlab
     widx = [2;6;15];
-    wm = wy_wind_model('model_npcc', widx);
+    wm = wy_wind_model('wind_model_npcc', widx);
     ```
 
 *   Generate transition probabilities for [MOST][2] for a 24 period horizon with
@@ -65,7 +65,7 @@ Usage
     and convert it to `log(raw_wind_speed+1)`, since that is what this model
     is based on.
     ```matlab
-    s = load('winddata_npcc');
+    s = load('wind_data_npcc');
     wind_data = s.wind_data;
     log_wind_data = log10(wind_data + 1);
     ```
@@ -101,10 +101,10 @@ Usage
 
 *   Convert the wind speed forecasts to wind power realizations, expressed
     as fractions of installed capacity, using the 4th power curve (off-shore)
-    defined in `'WindPowerCurveIEC.txt'`.
+    defined in `'wind_power_curve_EIC.txt'`.
     ```matlab
-    s2p = wy_wind_power_curve(4, 'WindPowerCurveIEC.txt');
-    wm = wy_wind_model('model_npcc', [2;6;15], s2p);
+    s2p = wy_wind_power_curve(4, 'wind_power_curve_EIC.txt');
+    wm = wy_wind_model('wind_model_npcc', [2;6;15], s2p);
     wpf = wm.speed2power(wsf);
     ```
 
@@ -122,8 +122,8 @@ followed by the name of a command or M-file to get help on that
 particular function.
 
 ### Notation
-- `np_all` — total number of periods in raw wind data
-- `nw_all` — total number of wind sites in raw data (16 for `winddata_npcc.mat`)
+- `np_all` — number of periods in raw wind data
+- `nw_all` — number of wind sites in raw data (16 for `wind_data_npcc.mat`)
 - `np` — number of periods of interest (e.g. for planning horizon)
 - `nw` — number of wind sites of interest
 - `npd` — number of periods per day (typically 24, for hourly data)
@@ -165,7 +165,10 @@ particular function.
 
 ### Data Files
 
-- **winddata_npcc.mat** — raw historical wind speed data from NPCC
+- **wind_cap_npcc.mat** — wind site installed capacities for NPCC
+  - `wind_cap` - (`1 x 16`) matrix of installed capacities in MW
+
+- **wind_data_npcc.mat** — raw historical wind speed data from NPCC
   - `npd` - number of periods per day, namely 24, since data is hourly
   - `dt0` - Matlab date vector with date/time for first period in data, namely
      [2004 1 1 1 0 0] for 1am on Jan 1, 2004.
@@ -175,11 +178,11 @@ particular function.
       - beginning at 2004-01-01 1:00 (1am)
       - ending at 2006-12-31 23:00 (11pm)
 
-- **model_npcc.mat** — type 1 model for the 16 sites in NPCC
+- **wind_model_npcc.mat** — type 1 model for the 16 sites in NPCC
   - `model` - struct with model parameters for 16 sites based on
-    **winddata_npcc.mat**
+    **wind_data_npcc.mat**
 
-- **WindPowerCurveIEC.txt** — power curve lookup tables
+- **wind_power_curve_EIC.txt** — power curve lookup tables
   - col 1 is wind speeds in m/s from 0 to 30
   - cols 2–6 contain 5 power curves as follows, expressed as fraction of
     installed capacity:  

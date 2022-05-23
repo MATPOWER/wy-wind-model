@@ -35,8 +35,8 @@ init_rng(42);           %% initialize state of random number generator
 t_begin(36+2*np, quiet);
 
 %% load the historical data
-t = 'winddata_npcc';
-s = load('winddata_npcc');  %% 26303 x 16
+t = 'wind_data_npcc';
+s = load('wind_data_npcc'); %% 26303 x 16
 wind_data = s.wind_data;
 log_wind_data = log10(wind_data + 1);   %% convert raw wind to log(wind+1)
 t_is(size(wind_data), [26303 16], 12, t);
@@ -44,10 +44,10 @@ t_ok(isfield(s, 'npd') && isequal(s.npd, 24), [t 'model.npd']);
 t_ok(isfield(s, 'dt0') && isequal(s.dt0, [2004 1 1 1 0 0]), [t 'model.dt0']);
 
 %% load the model
-t = 'model_npcc';
-s = load('model_npcc');
+t = 'wind_model_npcc';
+s = load('wind_model_npcc');
 model = s.model;
-t_ok(isstruct(model), [t 'model_npcc isstruct']);
+t_ok(isstruct(model), [t 'model is struct']);
 t_ok(isfield(model, 'type') && isequal(model.type, 1), [t 'model.type']);
 t_ok(isfield(model, 'npd') && isequal(model.npd, 24), [t 'model.npd']);
 t_ok(isfield(model, 'dt0') && isequal(model.dt0, [2004 1 1 1 0 0]), [t 'model.dt0']);
@@ -59,8 +59,8 @@ t_ok(isfield(model, 'ols_total') && isequal(size(model.ols_total), [1, 9]), [t '
 t_ok(isfield(model, 'var_wnr_total') && isequal(size(model.var_wnr_total), [1, 1]), [t 'model.var_wnr_total']);
 
 %% load the power curve
-t = 'WindPowerCurveIEC.txt : ';
-s2p = wy_wind_power_curve_data(5, 'WindPowerCurveIEC.txt');
+t = 'wind_power_curve_EIC.txt : ';
+s2p = wy_wind_power_curve_data(5, 'wind_power_curve_EIC.txt');
 t_is(size(s2p), [31, 2], 12, [t 'size']);
 t_is(s2p(:, 1), [0:30]', 12, [t 's2p(:, 1)']);
 
