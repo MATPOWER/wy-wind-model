@@ -48,6 +48,9 @@ classdef wy_wind_model < handle
         type = 0;       %% type of wind speed model
                         %%    0 - based on raw wind speed in m/s
                         %%    1 - based on log10(raw_wind_speed + 1)
+        npd             %% number of periods per day (24 for hourly model)
+        dt0             %% Matlab date vector corresponding to first period of
+                        %% data from which model was created
         nw              %% number of wind sites
         widx            %% indices of wind sites in original data
         ar1             %% nw x 1 vector of AR(1) coefficients for indiv sites
@@ -81,6 +84,8 @@ classdef wy_wind_model < handle
 
             %% assign model parameters
             obj.type = model.type;
+            obj.npd = model.npd;
+            obj.dt0 = model.dt0;
             obj.ar1 = model.ar1;
             obj.ols = model.ols;
             obj.var_wnr = model.var_wnr;

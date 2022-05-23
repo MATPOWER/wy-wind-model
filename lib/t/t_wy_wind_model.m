@@ -32,7 +32,7 @@ dt = [2004 8 1 0 0 0];  %% date of period of interest, 2004-08-01 12:00am
 pidx0 = wy_wind_date2pidx(npd, dt0, dt);    %% scalar index of period of interest
 init_rng(42);           %% initialize state of random number generator
 
-t_begin(31+2*np, quiet);
+t_begin(36+2*np, quiet);
 
 %% load the historical data
 t = 'winddata_npcc';
@@ -40,11 +40,16 @@ s = load('winddata_npcc');  %% 26303 x 16
 wind_data = s.wind_data;
 log_wind_data = log10(wind_data + 1);   %% convert raw wind to log(wind+1)
 t_is(size(wind_data), [26303 16], 12, t);
+t_ok(isfield(s, 'npd') && isequal(s.npd, 24), [t 'model.npd']);
+t_ok(isfield(s, 'dt0') && isequal(s.dt0, [2004 1 1 1 0 0]), [t 'model.dt0']);
 
 %% load the model
 t = 'constructor : ';
 wm = wy_wind_model('model_npcc', widx);
 t_ok(isa(wm, 'wy_wind_model'), [t 'isa(''wy_wind_model'')']);
+t_is(wm.type, 1, 12, [t 'wm.type']);
+t_is(wm.npd, 24, 12, [t 'wm.type']);
+t_is(wm.dt0, [2004 1 1 1 0 0], 12, [t 'wm.type']);
 t_ok(isequal(size(wm.ar1), [nw, 1]), [t 'wm.ar1']);
 t_ok(isequal(size(wm.ols), [nw, 9]), [t 'wm.ols']);
 t_ok(isequal(size(wm.var_wnr), [nw, nw]), [t 'wm.var_wnr']);

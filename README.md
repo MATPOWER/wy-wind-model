@@ -150,6 +150,9 @@ particular function.
     - `type` — type of wind speed model
       - 0 = based on *raw_wind_speed* in m/s
       - 1 = based on log(*raw_wind_speed* + 1)
+    - `npd` - number of periods per day (24 for hourly model)
+    - `dt0` - Matlab date vector corresponding to first period of data from
+      which model was created
     - `ar1` — (`nw_all x 1`) vector of AR[1] coefficients for individual sites
     - `ols` — (`nw_all x 9`) matrix of OLS estimation parameters for individual
         sites:  
@@ -163,10 +166,13 @@ particular function.
 ### Data Files
 
 - **winddata_npcc.mat** — raw historical wind speed data from NPCC
+  - `npd` - number of periods per day, namely 24, since data is hourly
+  - `dt0` - Matlab date vector with date/time for first period in data, namely
+     [2004 1 1 1 0 0] for 1am on Jan 1, 2004.
   - `wind_data` - (`26303 x 16`) matrix of wind speeds in m/s corresponding to:
     - 16 sites (ny1–ny9, ne1–ne7)
     - 3 years (2004, 2005, 2006) _(8760 * 3 + 24 -1 = 26303)_
-      - beginning @ 2004-01-01 1:00 (1am)
+      - beginning at 2004-01-01 1:00 (1am)
       - ending at 2006-12-31 23:00 (11pm)
 
 - **model_npcc.mat** — type 1 model for the 16 sites in NPCC

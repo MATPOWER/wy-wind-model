@@ -5,6 +5,12 @@ function wsf = wy_wind_forecasts(model, widx, pidx0, ws0, np, bins)
 %
 %   Inputs:
 %       MODEL - struct with fields:
+%           type -  type of wind speed model
+%               0 = based on raw_wind_speed in m/s
+%               1 = based on log10(raw_wind_speed + 1)
+%           npd - number of periods per day (24 for hourly model)
+%           dt0 - Matlab date vector corresponding to first period of data
+%               from which model was created
 %           ar1 - (NW_ALL x 1) vector of AR[1] coefficients for individual sites
 %           ols - (NW_ALL x 9) matrix of OLS estimation parameters for
 %               individual wind sites: [C CY1 SY1 CY2 SY2 CD1 SD1 CD2 SD2]
