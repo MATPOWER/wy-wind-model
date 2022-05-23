@@ -1,7 +1,7 @@
 WY-Wind-Model
 =============
 
-_by Wooyoung Jeon and Ray Zimmerman_
+_by Wooyoung Jeon, Ray Zimmerman, Alberto J. Lamadrid L., and Tim Mount_
 
 [WY-Wind-Model][1] provides a time-series wind model for use by the [MATPOWER
 Optimal Scheduling Tool][2] (MOST), which is part of [MATPOWER][3].
@@ -307,27 +307,16 @@ on the Statistics Toolbox.
     ```
 
 
-Publications
-------------
-
-1.  R. D. Zimmerman, C. E. Murillo-Sanchez, and R. J. Thomas,
-    ["MATPOWER: Steady-State Operations, Planning and Analysis Tools
-    for Power Systems Research and Education,"][7] *Power Systems, IEEE
-    Transactions on*, vol. 26, no. 1, pp. 12–19, Feb. 2011.  
-    doi: [10.1109/TPWRS.2010.2051168][7].
-
-
 [Citing WY-Wind-Model][8]
 --------------------------
 
 We request that publications derived from the use of the WY-Wind-Model
-explicitly acknowledge that fact by citing the following paper.
+explicitly acknowledge that fact by citing the following.
 
->   R. D. Zimmerman, C. E. Murillo-Sanchez, and R. J. Thomas, "MATPOWER:
-    Steady-State Operations, Planning and Analysis Tools for Power Systems
-    Research and Education," *Power Systems, IEEE Transactions on*, vol. 26,
-    no. 1, pp. 12-19, Feb. 2011.  
-    doi: [10.1109/TPWRS.2010.2051168][7]
+>   W. Jeon,  R. D. Zimmerman, A. J. Lamadrid L., and T. D. Mount (2022).
+    _WY-Wind-Model_ [Software].
+    Available: https://github.com/MATPOWER/wy-wind-model
+    doi: [10.5281/zenodo.6574119][7]
 
 License
 -------
@@ -339,7 +328,7 @@ Acknowledgments
 ---------------
 
 This material is based upon work supported in part by the National Science
-Foundation under Grant No. ???????. Any opinions, findings, and
+Foundation under Grant No. 1809830. Any opinions, findings, and
 conclusions or recommendations expressed in this material are those of the
 author(s) and do not necessarily reflect the views of the funding agencies.
 
@@ -350,6 +339,6 @@ author(s) and do not necessarily reflect the views of the funding agencies.
 [4]: https://www.mathworks.com/
 [5]: https://www.gnu.org/software/octave/
 [6]: https://github.com/MATPOWER/mptest
-[7]: https://doi.org/10.1109/TPWRS.2010.2051168
+[7]: https://doi.org/10.5281/zenodo.6574119
 [8]: CITATION
 [9]: LICENSE
