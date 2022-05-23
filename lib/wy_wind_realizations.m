@@ -85,17 +85,18 @@ else                %% generate realization from model
     % ols part : computing mean logwind
     % cycle information defined
     % PERIODS
-    PY1 = 8766;
+    PY1 = 365.25 * model.npd;   % 8766 for hourly model
     PY2 = PY1 / 2;
-    PD1 = 24;
+    PD1 = model.npd;            % 24 for hourly model
     PD2 = PD1 / 2;
 
     % adjustment for calender cycle input, push 1 hour to the next
     % IMPORTANT: cycle hour, 1hour shifted as estimation is done this way
     % hour 1 to hour 24, 24hours,
     % hour 0 needed for ar(1) process. at(t-1) is needed
-    shift = 1;
-    tt2=[pidx0+shift+1:1:pidx0+np+shift]';
+    jan1midnight = [model.dt0(1) 1 1 0 0 0];
+    base = wy_wind_date2pidx(model.npd, jan1midnight, model.dt0) - 1 + pidx0;
+    tt2=[base+1:base+np]';
 
     % cosine and sine of full year, half year, full day, half day
     c_y1 = cos( (2*pi()/ PY1) * tt2 );
