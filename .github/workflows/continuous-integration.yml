@@ -13,11 +13,10 @@ jobs:
       fail-fast: false
       matrix:
         platform: [octave]
-        os: [ubuntu-latest]
-#        os: [macos-latest, ubuntu-latest]
-#        include:
-#        - platform: matlab
-#          os: ubuntu-latest
+        os: [macos-latest, ubuntu-latest]
+        include:
+        - platform: matlab
+          os: ubuntu-latest
 
     runs-on: ${{ matrix.os }}
 
