@@ -147,7 +147,7 @@ t = 'wy_wind_forecasts : ';
 t_is(size(wsf), [np, nb, nw], 12, [t 'size(wsf)']);
 t_is(wsf, s.wsf, 12, [t 'wsf_t0']);
 t_is(wsf1, s.wsf1, 12, [t 'wsf_t1']);
-t_ok(norm(wsf(2:end, :, 1) - wsf1(1:end-1, :, 1)) > 0.1, [t 'wsf_t0(2:end,:) ~= wsf_t1(1:end-1,:)']);
+t_ok(norm(wsf(2:end, :, 1) - wsf1(1:end-1, :, 1)) > 0.05, [t 'wsf_t0(2:end,:) ~= wsf_t1(1:end-1,:)']);
 
 t = 'wy_wind_speed2power : ';
 t_is(size(wpf), [np, nb, nw], 12, [t 'size(wpf)']);

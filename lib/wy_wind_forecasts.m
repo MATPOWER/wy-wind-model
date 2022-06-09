@@ -127,27 +127,6 @@ for i=1:nw
 
     bm = ff0(2:end) + sd_for * bin_mean;
 
-    % uuu : AR residual for bin mean i in hour t-1
-    % bf : forecast for bin mean i in hour t
-
-    uuu0 = zeros(np+1,nb);  % t starting at 0, 25 hours
-
-    midx = floor((nb+1)/2); % index for central bin
-
-    uuu0(1,midx) = uINIT;
-    for t=2:np+1
-        uuu0(t,:) = bm(t-1,:) - ff0(t,1);
-    end
-
-    uuu = uuu0(2:end,:);
-
-    bf0 = zeros(np-1, nb);
-    for t=2:np
-        bf0(t-1,:) = ff(t,1) + rho(widx(i))*uuu0(t,:);
-    end
-
-    bf = [ones(1,nb) * ff(1); bf0];
-
-    bf_all(:,:,i) = bf;
-    wsf(:,:,i) = bf;
+    bm_all(:,:,i) = bm;
+    wsf(:,:,i) = bm;
 end
