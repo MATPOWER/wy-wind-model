@@ -29,7 +29,7 @@ nb = 4;                 %% use 4 bins for forecasts
 npd = 24;               %% number of periods per day in wind data
 dt0 = [2004 1 1 1 0 0]; %% date of first period in wind data, 2004-01-01 1:00am
 dt = [2004 8 1 0 0 0];  %% date of period of interest, 2004-08-01 12:00am
-pidx0 = wy_wind_date2pidx(npd, dt0, dt);    %% scalar index of period of interest
+pidx1 = wy_wind_date2pidx(npd, dt0, dt);    %% scalar index of period of interest
 init_rng(42);           %% initialize state of random number generator
 
 t_begin(36+2*np, quiet);
@@ -67,23 +67,23 @@ t_is(s2p(:, 1), [0:30]', 12, [t 's2p(:, 1)']);
 tp = wm.transition_probs(np, nb);
 
 %% wind speed realization from data
-wsr_data = wm.realizations(pidx0, np, log_wind_data);
-wsr_data1 = wm.realizations(pidx0+1, np, log_wind_data);
+wsr_data = wm.realizations(pidx1, np, log_wind_data);
+wsr_data1 = wm.realizations(pidx1+1, np, log_wind_data);
 
 %% convert realization from speed to power
 wpr_data = wm.speed2power(wsr_data);
 wpr_data1 = wm.speed2power(wsr_data1);
 
 %% wind speed realization from model
-wsr_model = wm.realizations(pidx0, np);
+wsr_model = wm.realizations(pidx1, np);
 
 %% convert realization from speed to power
 wpr_model = wm.speed2power(wsr_model);
 
 %% generate forecast
-ws0 = log_wind_data(pidx0, widx);
-wsf = wm.forecasts(pidx0, ws0, np, nb);
-wsf1 = wm.forecasts(pidx0+1, ws0, np, nb);
+ws0 = log_wind_data(pidx1, widx);
+wsf = wm.forecasts(pidx1, ws0, np, nb);
+wsf1 = wm.forecasts(pidx1+1, ws0, np, nb);
 
 %% convert forecast from speed to power
 wpf = wm.speed2power(wsf);

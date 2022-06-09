@@ -83,14 +83,14 @@ Usage
     the original NPCC historical data, beginning at noon on June 1, 2005 (data
     starts at 1am on Jan 1, 2004).
     ```matlab
-    pidx0 = wy_wind_date2pidx(24, [2004 1 1 1 0 0], [2005 6 1 12 0 0]);
-    wsr = wm.realizations(pidx0, 48, log_wind_data);
+    pidx1 = wy_wind_date2pidx(24, [2004 1 1 1 0 0], [2005 6 1 12 0 0]);
+    wsr = wm.realizations(pidx1, 48, log_wind_data);
     ```
 
 *   Generate a 24-hour wind speed realization from the model for the 3 sites
     of interest, beginning at the same hour.
     ```matlab
-    wsr = wm.realizations(pidx0, 24);
+    wsr = wm.realizations(pidx1, 24);
     ```
 
 *   Convert the wind speed realizations to wind power realizations, expressed
@@ -104,8 +104,8 @@ Usage
     of interest, beginning at the same hour, using 4 bins to represent the
     forecast distribution.
     ```matlab
-    ws0 = log_wind_data(pidx0-1, widx);
-    wsf = wm.forecasts(pidx0, ws0, 24, 4);
+    ws0 = log_wind_data(pidx1-1, widx);
+    wsf = wm.forecasts(pidx1, ws0, 24, 4);
     ```
 
 *   Convert the wind speed forecasts to wind power realizations, expressed
@@ -139,6 +139,8 @@ particular function.
 - `nb` — number of bins used for wind model inputs for MOST
 - `widx` — (`nw x 1`) vector of indices of wind sites of interest
 - `pidx` — scalar period index for raw historical wind data
+- `pidx1` — scalar period index of first period of horizon of interest,
+  relative to first period of raw historical wind data
 - `dt` — 1 x 6 standard Matlab date vector [_yr, mo, day, hr, min, sec_],
   specifying a specific period in the raw historical wind data,
   _yr_ = 4-digit year,
@@ -161,7 +163,7 @@ particular function.
       - 1 = based on log(*raw_wind_speed* + 1)
     - `npd` - number of periods per day (24 for hourly model)
     - `dt0` - Matlab date vector corresponding to first period of data from
-      which model was created, `pidx0` for forecasts and realizations created
+      which model was created, `pidx1` for forecasts and realizations created
       from the model are w.r.t. this date
     - `ar1` — (`nw_all x 1`) vector of AR[1] coefficients for individual sites
     - `ols` — (`nw_all x 9`) matrix of OLS estimation parameters for individual
@@ -221,15 +223,15 @@ particular function.
   from the historical data, given the starting period and the number of
   periods desired
     ```matlab
-    wsr = wm.realizations(pidx0, np)
-    wsr = wm.realizations(pidx0, np, wind_data)
+    wsr = wm.realizations(pidx1, np)
+    wsr = wm.realizations(pidx1, np, wind_data)
     ```
 
 - __forecasts__ — generates forecasts of wind speed bin means from the model,
   for use with [MOST][2], given the starting period, initial wind speed, number
   of periods desired, and the bin specification
     ```matlab
-     wsf = wm.forecasts(pidx0, ws0, np, bins)
+     wsf = wm.forecasts(pidx1, ws0, np, bins)
     ```
 
 - __speed2power__ — converts wind speed data to wind power, expressed as
@@ -255,16 +257,16 @@ particular function.
   them from the historical data, given the starting period and the number of
   periods desired
     ```matlab
-    wsr = wy_wind_realizations(model, widx, pidx0, np)
-    wsr = wy_wind_realizations(wind_data, widx, pidx0, np)
-    wsr = wy_wind_realizations(log_wind_data, widx, pidx0, np)
+    wsr = wy_wind_realizations(model, widx, pidx1, np)
+    wsr = wy_wind_realizations(wind_data, widx, pidx1, np)
+    wsr = wy_wind_realizations(log_wind_data, widx, pidx1, np)
     ```
 
 - __wy_wind_forecasts__ — generates forecasts of wind speed bin means from the
   model, for use with [MOST][2], given the starting period, initial wind speed,
   number of periods desired, and the bin specification
     ```matlab
-    wsf = wy_wind_forecasts(model, widx, pidx0, ws0, np, bins)
+    wsf = wy_wind_forecasts(model, widx, pidx1, ws0, np, bins)
     ```
 
 - __wy_wind_speed2power__ — converts wind speed data to wind power, expressed

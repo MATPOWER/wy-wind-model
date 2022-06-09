@@ -28,10 +28,10 @@ classdef wy_wind_model < handle
 %       transition_probs()
 %           tp = wm.transition_probs(np, bins)
 %       realizations()
-%           wsr = wm.realizations(pidx0, np)
-%           wsr = wm.realizations(pidx0, np, wind_data)
+%           wsr = wm.realizations(pidx1, np)
+%           wsr = wm.realizations(pidx1, np, wind_data)
 %       forecasts()
-%           wsf = wm.forecasts(pidx0, ws0, np, bins)
+%           wsf = wm.forecasts(pidx1, ws0, np, bins)
 %       speed2power()
 %           wp = wm.speed2power(ws)
 %       display() - called to display object on command line
@@ -110,16 +110,16 @@ classdef wy_wind_model < handle
             tp = wy_wind_trans_probs(obj, np, bins);
         end
 
-        function wsr = realizations(obj, pidx0, np, wind_data)
+        function wsr = realizations(obj, pidx1, np, wind_data)
             if nargin > 3 && ~isempty(wind_data)
-                wsr = wy_wind_realizations(wind_data, obj.widx, pidx0, np);
+                wsr = wy_wind_realizations(wind_data, obj.widx, pidx1, np);
             else
-                wsr = wy_wind_realizations(obj, [1:obj.nw]', pidx0, np);
+                wsr = wy_wind_realizations(obj, [1:obj.nw]', pidx1, np);
             end
         end
 
-        function wsf = forecasts(obj, pidx0, ws0, np, bins)
-            wsf = wy_wind_forecasts(obj, [1:obj.nw]', pidx0, ws0, np, bins);
+        function wsf = forecasts(obj, pidx1, ws0, np, bins)
+            wsf = wy_wind_forecasts(obj, [1:obj.nw]', pidx1, ws0, np, bins);
         end
 
         function wp = speed2power(obj, ws)

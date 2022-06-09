@@ -8,7 +8,7 @@ log_wind_data = log10(wind_data + 1);
 widx = [1;3;5;7];   %% wind sites of interest
 np = 24;            %% num of periods
 nb = 5;             %% num of bins
-pidx00 = wy_wind_date2pidx(24, [2004 1 1 1 0 0], [2004 7 27 8 0 0]);    %% 5000
+pidx0 = wy_wind_date2pidx(24, [2004 1 1 1 0 0], [2004 7 27 8 0 0]); %% 5000
 nw = length(widx);  %% num of wind sites of interest
 nrh = 24;           %% length of receding horizon window
 
@@ -28,15 +28,15 @@ for t = 1:nrh
     tp{t} = wm.transition_probs(np, nb);
 
     %% starting period index for window t
-    pidx0 = pidx00 - 1 + t;
+    pidx1 = pidx0 - 1 + t;
 
     %% generate realized wind power
-    wsr{t} = wm.realizations(pidx0, np);
+    wsr{t} = wm.realizations(pidx1, np);
     wpr{t} = wm.speed2power(wsr{t});
 
     %% generate forecasted wind power
-    ws0 = log_wind_data(pidx0-1, widx);
-    wsf{t} = wm.forecasts(pidx0, ws0, np, nb);
+    ws0 = log_wind_data(pidx1-1, widx);
+    wsf{t} = wm.forecasts(pidx1, ws0, np, nb);
     wpf{t} = wm.speed2power(wsf{t});
 end
 

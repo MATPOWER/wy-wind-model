@@ -1,7 +1,7 @@
-function wsf = wy_wind_forecasts(model, widx, pidx0, ws0, np, bins)
+function wsf = wy_wind_forecasts(model, widx, pidx1, ws0, np, bins)
 %WY_WIND_FORECASTS  Returns wind speed forecast bin means
 %
-%   WSF = WY_WIND_FORECASTS(MODEL, WIDX, PIDX0, WS0, NP, BINS)
+%   WSF = WY_WIND_FORECASTS(MODEL, WIDX, PIDX1, WS0, NP, BINS)
 %
 %   Inputs:
 %       MODEL - struct with fields:
@@ -21,7 +21,7 @@ function wsf = wy_wind_forecasts(model, widx, pidx0, ws0, np, bins)
 %       WIDX  - (NW x 1) vector of indices of wind sites of interest
 %       WS0 - (NW x 1) vector of initial wind, units must be consistent with
 %           those used by MODEL
-%       PIDX0 - scalar period index of first period of horizon of interest
+%       PIDX1 - scalar period index of first period of horizon of interest
 %       NP    - number of periods of interest (e.g. for planning horizon)
 %       BINS  - bin specification, supplied as either:
 %           (1) number of bins (NB), or
@@ -77,7 +77,7 @@ PD2 = PD1 / 2;
 % hour 0 to hour 24, 25hours,
 % hour 0 needed for ar(1) process. at(t-1) is needed
 jan1midnight = [model.dt0(1) 1 1 0 0 0];
-base = wy_wind_date2pidx(model.npd, jan1midnight, model.dt0) - 1 + pidx0;
+base = wy_wind_date2pidx(model.npd, jan1midnight, model.dt0) + pidx1 - 1;
 tt2=[base:base+np]';
 
 % cosine and sine of full year, half year, full day, half day

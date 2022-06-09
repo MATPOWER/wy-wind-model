@@ -1,8 +1,8 @@
-function wsr = wy_wind_realizations(model, widx, pidx0, np)
+function wsr = wy_wind_realizations(model, widx, pidx1, np)
 %WY_WIND_REALIZATIONS  Returns wind speed realizations
 %
-%   WSR = WY_WIND_REALIZATIONS(MODEL, WIDX, PIDX0, NP)
-%   WSR = WY_WIND_REALIZATIONS(WIND_DATA, WIDX, PIDX0, NP)
+%   WSR = WY_WIND_REALIZATIONS(MODEL, WIDX, PIDX1, NP)
+%   WSR = WY_WIND_REALIZATIONS(WIND_DATA, WIDX, PIDX1, NP)
 %
 %   If the first argument is a struct (MODEL), a new realization is genereted
 %   using the model. On the other hand, if the first argument is a matrix
@@ -27,7 +27,7 @@ function wsr = wy_wind_realizations(model, widx, pidx0, np)
 %           to NP_ALL periods, NW_ALL specific sites, a particular NPD (number
 %           of periods per day), and a starting date/time (DT0)
 %       WIDX  - (NW x 1) vector of indices of wind sites of interest
-%       PIDX0 - scalar period index of first period of horizon of interest
+%       PIDX1 - scalar period index of first period of horizon of interest
 %       NP    - number of periods of interest (e.g. for planning horizon)
 %
 %   Output:
@@ -43,7 +43,7 @@ function wsr = wy_wind_realizations(model, widx, pidx0, np)
 %   See https://github.com/MATPOWER/wy-wind-model for more info.
 
 if isnumeric(model) %% extract realization from data
-    wsr = model(pidx0:pidx0+np-1, widx);
+    wsr = model(pidx1:pidx1+np-1, widx);
 else                %% generate realization from model
     nw = length(widx);
 
@@ -95,7 +95,7 @@ else                %% generate realization from model
     % hour 1 to hour 24, 24hours,
     % hour 0 needed for ar(1) process. at(t-1) is needed
     jan1midnight = [model.dt0(1) 1 1 0 0 0];
-    base = wy_wind_date2pidx(model.npd, jan1midnight, model.dt0) - 1 + pidx0;
+    base = wy_wind_date2pidx(model.npd, jan1midnight, model.dt0) + pidx1 - 1;
     tt2=[base+1:base+np]';
 
     % cosine and sine of full year, half year, full day, half day
