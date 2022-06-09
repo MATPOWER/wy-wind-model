@@ -3,8 +3,18 @@ WY-Wind-Model
 
 _by Wooyoung Jeon, Ray Zimmerman, Alberto J. Lamadrid L., and Tim Mount_
 
-[WY-Wind-Model][1] provides a time-series wind model for use by the [MATPOWER
-Optimal Scheduling Tool][2] (MOST), which is part of [MATPOWER][3].
+[WY-Wind-Model][1] provides a wind model for use by the [MATPOWER
+Optimal Scheduling Tool][2] (MOST), which is part of [MATPOWER][3]. It
+generates wind forecasting profiles and associated transition
+probabilities according to a pre-determined bin structure and time
+horizon. Wind forecasting profiles are generated based on an econometric
+model that consists of an OLS component capturing a seasonal effect and
+a time-series component capturing the dynamics in the residual. The
+uncertainty required for forecasting is implemented by a var-cov matrix
+of white noise residuals of the time-series model, which enables it to
+reflect the correlation between different wind sites. [WY-Wind-Model][1]
+also provides wind realization profiles, generated either from actual
+realization data or from an econometric model.
 
 
 System Requirements
@@ -40,8 +50,8 @@ of MATLAB or Octave, including setting up your MATLAB/Octave path.
   t_wy_wind_pidx2date....ok
   t_wy_wind..............ok
   t_wy_wind_model........ok
-  All tests successful (126 of 126)
-  Elapsed time 0.09 seconds.
+  All tests successful (136 of 136)
+  Elapsed time 0.07 seconds.
 ```
 
 
@@ -66,8 +76,7 @@ Usage
     is based on.
     ```matlab
     s = load('wind_data_npcc');
-    wind_data = s.wind_data;
-    log_wind_data = log10(wind_data + 1);
+    log_wind_data = log10(s.wind_data + 1);
     ```
 
 *   Extract a 48-hour wind speed realization for the 3 sites of interest from
@@ -143,8 +152,8 @@ particular function.
   starting date/time (`dt0`)
 - `log_wind_data` — (`np_all x nw_all`) matrix equal to `log10(wind_data + 1)`
 - `bins` —  bin specification, supplied as either:
-  1. number of bins (`nb`), or
-  2. (`1 x nb-1`) vector of bin boundaries (standard deviation coefficients),
+  - number of bins (`nb`), or
+  - (`1 x nb-1`) vector of bin boundaries (standard deviation coefficients),
      where initial `-Inf` and final `+Inf` are assumed, but not included
 - `model` — struct with fields:
     - `type` — type of wind speed model
@@ -152,7 +161,8 @@ particular function.
       - 1 = based on log(*raw_wind_speed* + 1)
     - `npd` - number of periods per day (24 for hourly model)
     - `dt0` - Matlab date vector corresponding to first period of data from
-      which model was created
+      which model was created, `pidx0` for forecasts and realizations created
+      from the model are w.r.t. this date
     - `ar1` — (`nw_all x 1`) vector of AR[1] coefficients for individual sites
     - `ols` — (`nw_all x 9`) matrix of OLS estimation parameters for individual
         sites:  
