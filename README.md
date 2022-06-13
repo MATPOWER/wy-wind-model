@@ -337,13 +337,18 @@ explicitly acknowledge that fact by citing the following.
 >   W. Jeon,  R. D. Zimmerman, A. J. Lamadrid L., and T. D. Mount (2022).
     _WY-Wind-Model_ [Software].
     Available: https://github.com/MATPOWER/wy-wind-model
-    doi: [10.5281/zenodo.6574119][7]
+    doi: [10.5281/zenodo.6574118][7]
 
 License
 -------
 
 WY-Wind-Model is distributed under the [3-clause BSD license][9].
 
+
+Release History
+---------------
+
+- 1.0 — Jun 13, 2022
 
 Acknowledgments
 ---------------
@@ -360,6 +365,6 @@ author(s) and do not necessarily reflect the views of the funding agencies.
 [4]: https://www.mathworks.com/
 [5]: https://www.gnu.org/software/octave/
 [6]: https://github.com/MATPOWER/mptest
-[7]: https://doi.org/10.5281/zenodo.6574119
+[7]: https://doi.org/10.5281/zenodo.6574118
 [8]: CITATION
 [9]: LICENSE
