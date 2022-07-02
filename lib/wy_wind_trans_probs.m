@@ -75,7 +75,7 @@ end
 % tp : cell{1 x np}
 % cell(1) : {1 x nb}, cell(2:np) : {nb x nb}
 tp = cell(1,np);
-tp{1} = squeeze(tp1(midx,:,1));
+tp{1} = squeeze(tp1(midx,:,1))';
 for t=2:np
-    tp{t} = squeeze(tp1(:,:,t));
+    tp{t} = squeeze(tp1(:,:,t))';
 end

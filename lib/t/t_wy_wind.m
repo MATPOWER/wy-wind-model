@@ -108,7 +108,7 @@ t = 'wy_wind_trans_probs : ';
 t_is(length(tp), np, 12, [t 'length']);
 for p = 1:np
     if p == 1
-        t_is(size(tp{p}), [1 nb], 12, sprintf('size(tp{%d})', p));
+        t_is(size(tp{p}), [nb 1], 12, sprintf('size(tp{%d})', p));
     else
         t_is(size(tp{p}), [nb nb], 12, sprintf('size(tp{%d})', p));
     end
